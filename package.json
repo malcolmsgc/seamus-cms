@@ -63,6 +63,7 @@
     "eslint-plugin-standard": "^3.0.1",
     "extract-text-webpack-plugin": "^2.1.0",
     "jest": "^21.2.1",
+    "jsdoc": "^3.5.5",
     "mocha": "^4.0.1",
     "mongodb-memory-server": "^1.6.3",
     "node-sass": "^4.5.3",

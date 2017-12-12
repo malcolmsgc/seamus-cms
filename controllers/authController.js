@@ -5,8 +5,19 @@ const User = mongoose.model('User');
 const promisify = require('es6-promisify');
 const mail = require('../handlers/mail');
 
+/** @constant authExceptions
+ *  @type array of strings
+ *  @required for authCheck method
+ *  Array of paths that unauthenticated users can access
+ */
 const authExceptions = ["/login", "/register"];
+
 /** @todo add in routes for Admin level access */
+/** @constant administratorOnly
+ *  @type array of strings
+ *  @required for permissionsCheck method
+ *  Array of paths that administrator role can access, i.e. other roles should not access
+ */
 const administratorOnly = [];
 
 exports.login = passport.authenticate('local', {
@@ -32,6 +43,11 @@ exports.authCheck = (req, res, next) => {
     }
 };
 
+/** @function permissionsCheck
+ *  Checks role of user against @constant administratorOnly array
+ *  Allows access to pages allowed to role.
+ *  Halts navigation for users without role. This is recautionary only as user model requires role to be set
+ */
 exports.permissionsCheck = (req, res, next) => {
     if (user.role === 'administrator') {
         next();

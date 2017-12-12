@@ -4,7 +4,9 @@ block content
     .inner
         form.form(action="/register" method="POST")
             h2 Register
-            label(for="name") Name
+            label(for="firstname") First name
+            input(type="text" name="name" required)
+            label(for="lastname") Last name
             input(type="text" name="name" required)
             label(for="email") Email
             input(type="email" name="email" required)
