@@ -1,8 +1,10 @@
 const express = require('express');
-const apiRouter = express.Router();
+const router = express.Router();
 // const storeController = require('../controllers/');
 const { catchErrors } = require('../handlers/errorHandlers');
 
-// router.route('/api/v1');
+router.get('/v1', (req, res) => {
+    res.send('Hello');
+});
 
-module.exports = apiRouter;
+module.exports = router;

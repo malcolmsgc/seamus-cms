@@ -1,6 +1,6 @@
-const mg = require('mongoose');
-const Schema = mg.Schema;
-mg.Promise = global.Promise;
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+// mongoose.Promise = global.Promise;
 const md5 = require('md5');
 const validator = require('validator');
 const mongodbErrorHandler = require('mongoose-mongodb-errors');
@@ -21,10 +21,7 @@ const userSchema = new Schema({
      trim: true
  },
  resetPasswordToken : String,
- resetPasswordExpires: Date,
- hearts: [
-     { type: mg.Schema.ObjectId, ref: 'Store' }
- ]
+ resetPasswordExpires: Date
 });
 
 userSchema.virtual('gravatar').get(function() {
@@ -34,4 +31,4 @@ userSchema.virtual('gravatar').get(function() {
 userSchema.plugin(passportLocalMongoose, { usernameField: 'email'});
 userSchema.plugin(mongodbErrorHandler);
 
-module.exports = mg.model("User", userSchema);
+module.exports = mongoose.model('User', userSchema);

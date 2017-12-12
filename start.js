@@ -4,16 +4,20 @@ const mongoose = require('mongoose');
 require('dotenv').config({ path: 'variables.env' });
 
 // Connect to our Database and handle any bad connections
-mongoose.connect(process.env.DATABASE);
-mongoose.Promise = global.Promise; // Tell Mongoose to use ES6 promises
-// mongoose.connection.on('open', () => console.log(`DB ${process.env.DATABASE} connected`));
+const mongooseOptions = {
+  useMongoClient: true,
+  promiseLibrary: global.Promise
+};
+mongoose.connect(process.env.DATABASE, mongooseOptions);
+// mongoose.Promise = global.Promise;
+mongoose.connection.on('open', () => console.log(`DB ${process.env.DATABASE} connected`));
 mongoose.connection.on('error', (err) => {
   console.error(`☠️☠️☠️ ${err.message} ☠️☠️☠️`);
 });
 
 // Models
+console.log('Requiring models...');
 require('./models/User');
-
 
 // Start our app!
 const app = require('./app');

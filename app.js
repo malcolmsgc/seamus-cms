@@ -3,12 +3,13 @@ const session = require('express-session');
 const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo')(session);
 const path = require('path');
-const cookieParser = require('cookie-parser');
+const cookieParser = require('cookie-parser'); //TO DO - CHECK: no longer nec for express session. May still be needed for passport. 
 const bodyParser = require('body-parser');
 const passport = require('passport');
 const promisify = require('es6-promisify');
 const flash = require('connect-flash');
 const expressValidator = require('express-validator');
+console.log('Requiring routes...');
 const routes = require('./routes/index');
 const api = require('./routes/api');
 const helpers = require('./helpers');
@@ -38,8 +39,8 @@ app.use(cookieParser());
 // Sessions allow us to store data on visitors from request to request
 // This keeps users logged in and allows us to send flash messages
 app.use(session({
-  secret: process.env.SECRET,
-  key: process.env.KEY,
+  secret: `${process.env.SECRET || "test"}`,
+  key: `${process.env.KEY || "session"}`,
   resave: false,
   saveUninitialized: false,
   store: new MongoStore({ mongooseConnection: mongoose.connection })
@@ -69,7 +70,7 @@ app.use((req, res, next) => {
 
 // After allllll that above middleware, we finally handle our own routes!
 app.use('/', routes);
-app.use('', api);
+app.use('/api', api);
 
 // If that above routes didnt work, we 404 them and forward to error handler
 app.use(errorHandlers.notFound);
