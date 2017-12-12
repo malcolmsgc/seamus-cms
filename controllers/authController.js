@@ -33,12 +33,20 @@ exports.authCheck = (req, res, next) => {
 };
 
 exports.permissionsCheck = (req, res, next) => {
-    if (user.role === 'admin')
+    if (user.role === 'administrator') {
         next();
         return;
     }
+    else if (user.role === 'editor' && administratorOnly.includes(req.url)) {
+        res.redirect('back');
+        req.flash('error', 'You must be an administrator to view that page');
+        return;
+    }
     else {
-        res.redirect('/login');
+        throw new Error('User has no role set. Please contact an administrator to set a role');
+        req.flash('error', 'User has no role set. Please contact an administrator to set a role');
+        res.redirect('back');
+        return;
     }
 };
 
