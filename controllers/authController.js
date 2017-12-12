@@ -6,6 +6,8 @@ const promisify = require('es6-promisify');
 const mail = require('../handlers/mail');
 
 const authExceptions = ["/login", "/register"];
+/** @todo add in routes for Admin level access */
+const administratorOnly = [];
 
 exports.login = passport.authenticate('local', {
     failureRedirect: '/login',
@@ -29,6 +31,17 @@ exports.authCheck = (req, res, next) => {
         res.redirect('/login');
     }
 };
+
+exports.permissionsCheck = (req, res, next) => {
+    if (user.role === 'admin')
+        next();
+        return;
+    }
+    else {
+        res.redirect('/login');
+    }
+};
+
 
 exports.forgot = async (req, res) => {
     const user = await User.findOne({ email: req.body.email });

@@ -1,4 +1,9 @@
 
+/** @module index.js exports router object
+ *  @summary holds routes for app. Routes include: 
+ * GET calls for page renders
+ */
+
 const express = require('express');
 const router = express.Router();
 const navController = require('../controllers/navController');
