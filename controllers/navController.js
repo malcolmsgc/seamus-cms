@@ -9,7 +9,3 @@ exports.mainPage = (req, res) => {
 exports.loginPage = (req, res) => {
     res.render('login', {title: 'login'});
 };
-
-exports.registerPage = (req, res) => {
-    res.render('register', {title: 'Register'});
-};

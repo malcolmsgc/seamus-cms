@@ -2,18 +2,20 @@ const mg = require('mongoose');
 const User = mg.model('User');
 const promisify = require('es6-promisify');
 
-exports.loginForm = (req, res) => {
+exports.loginPage = (req, res) => {
     res.render('login', {title: 'login'});
 };
 
-exports.registerForm = (req, res) => {
+exports.registerPage = (req, res) => {
     res.render('register', {title: 'register'});
 };
 
 // uses methods on expressValidator
 exports.validateRegister = (req, res, next) => {
-    req.sanitizeBody('name');
-    req.checkBody('name', 'You must supply a name').notEmpty();
+    req.sanitizeBody('firstname');
+    req.checkBody('firstname', 'You must supply a first name').notEmpty();
+    req.sanitizeBody('lastname');
+    req.checkBody('lastname', 'You must supply a last name').notEmpty();
     req.checkBody('email', 'That email is not valid').isEmail();
     req.sanitizeBody('email').normalizeEmail({
         remove_dots: false,
@@ -33,9 +35,23 @@ exports.validateRegister = (req, res, next) => {
     next();
 };
 
+/** @function appendRole
+ * Middleware that adds user role to request object and passes it to the register method.
+ * query DB to see if any admin user exists
+ * if no users userRole set to admin
+ * else userRole should be editor
+ * @todo allow admin to edit userRole so further admins can be added
+ * @returns next to pass req to register middleware method
+ */
+exports.appendRole = async (req, res, next) => {
+    const numAdmins = await User.find({ role: "administrator" }).count();
+    req.body.role = (numAdmins > 1) ? 'editor' : 'administrator';
+    next();
+}
+
 exports.register = async (req, res, next) => {
-    const { email, name, password } = req.body;
-    const user =  new User({ email, name });
+    const { email, firstname, lastname, password, role } = req.body;
+    const user =  new User({ email, firstname, lastname, role });
     const register = promisify(User.register, User);
     await register(user, password);
     next(); //passes to authController.login
