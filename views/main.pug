@@ -1,4 +1,9 @@
 extends layout
 
+include mixins/_header
+
+block header
+    +header(user)
+
 block content
     h2= title

@@ -45,7 +45,7 @@ exports.validateRegister = (req, res, next) => {
  */
 exports.appendRole = async (req, res, next) => {
     const numAdmins = await User.find({ role: "administrator" }).count();
-    req.body.role = (numAdmins > 1) ? 'editor' : 'administrator';
+    req.body.role = (numAdmins >= 1) ? 'editor' : 'administrator';
     next();
 }
 

@@ -6,4 +6,6 @@ include mixins/_forgotForm
 block content
     .inner
         +loginForm()
+        p No #[ account? ]
+            strong: a(href="/register") Register!
         +forgotForm()

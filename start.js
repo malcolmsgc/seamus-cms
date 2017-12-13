@@ -10,6 +10,7 @@ const mongooseOptions = {
 };
 mongoose.connect(process.env.DATABASE, mongooseOptions);
 // mongoose.Promise = global.Promise;
+// assert.equal(query.exec().constructor, global.Promise);
 mongoose.connection.on('open', () => console.log(`DB ${process.env.DATABASE} connected`));
 mongoose.connection.on('error', (err) => {
   console.error(`☠️☠️☠️ ${err.message} ☠️☠️☠️`);

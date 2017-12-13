@@ -1,6 +1,8 @@
 const express = require('express');
 const session = require('express-session');
 const mongoose = require('mongoose');
+/** @todo debug: Jest (and Mocha) timing out on tests. Possibly a problem with promises. Added promise assignment here in attempt to fix but no dice */
+mongoose.Promise = global.Promise; 
 const MongoStore = require('connect-mongo')(session);
 const path = require('path');
 const cookieParser = require('cookie-parser'); //TO DO - CHECK: no longer nec for express session. May still be needed for passport. 
