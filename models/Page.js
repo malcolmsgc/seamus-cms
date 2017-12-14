@@ -1,11 +1,7 @@
-import { type } from 'os';
-import { String, Number } from 'core-js/library/web/timers';
-
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 // mongoose.Promise = global.Promise;
 const validator = require('validator');
-const mongodbErrorHandler = require('mongoose-mongodb-errors');
 
 const pageSchema = new Schema({
     title: {
@@ -17,12 +13,16 @@ const pageSchema = new Schema({
     subtitle: {
         type: String,
         trim: true,
-        validate: [validator.isAscii, 'Only ASCII characters allowed in page subtitle'],
-        default: 'Untitled'
+        validate: [validator.isAscii, 'Only ASCII characters allowed in page subtitle']
     },
+    /** 
+     * @property index {number}
+     * index field is intended for any custom ordering within CMS
+    */
     index: {
         type: Number,
-        unique: true
+        default: 0
+        // unique: true
     },
     rel_path: {
         type: String,
@@ -31,15 +31,39 @@ const pageSchema = new Schema({
         unique: true,
         required: 'Provide full relative path of page. Must be unique.'
     },
+    /**
+     * @property created {date}
+     * date CMS page was created
+     */
     created: {
         type: Date,
         default: Date.now
     },
+    /**
+     * @property first_published {date}
+     * date content first submitted
+     */
     first_published: Date,
-    last_published: Date,
-    content: [
-        {type: ObjectId, ref: 'Content'}
-    ]
+    /**
+     * @property last_published {date}
+     * date content most recently submitted
+     */
+    last_published: Date
+}, 
+// MODEL OPTIONS
+{
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+});
+
+/** @property content {object}
+ * A page's content as virtual field on the Page model. 
+ * Requires populate() on request.
+ */
+pageSchema.virtual('content', {
+    ref: 'Content',
+    localField: '_id',
+    foreignField: 'page'
 });
 
 module.exports = mongoose.model('Page', pageSchema);
