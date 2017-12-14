@@ -5,6 +5,7 @@ const validator = require('validator');
 const mongodbErrorHandler = require('mongoose-mongodb-errors');
 
 const settingsSchema = new Schema({
+    //your site's name
     // allow html?
     // root / tld
     // single or multi page

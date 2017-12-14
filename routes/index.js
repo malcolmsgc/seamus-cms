@@ -20,6 +20,8 @@ router.get('/', navController.mainPage );
 router.get('/login', userController.loginPage );
 router.get('/logout', authController.logout );
 router.get('/register', userController.registerPage );
+router.get('/addpage/(:step)?', navController.addPage );
+// router.get('/page/:page/edit/:step', navController.editPage );
 
 // FORM SUBMISSIONS
 router.post('/register',

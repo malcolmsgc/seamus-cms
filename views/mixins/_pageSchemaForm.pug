@@ -1,0 +1,16 @@
+mixin pageSchemaForm()
+    form.form(method="POST")
+        h2 Create page
+        p Choose what content to manage
+        p: em Fields will be added to a single CMS page. You can add as many pages as you like
+        label(for="title") Page title
+        input(type="text" name='title' placeholder="Untitled page") 
+        label(for="subtitle") Subtitle
+        input(type="text" name='subtitle')
+        label(for="index") Page index
+        p This will be used to sequence pages if ordering by name or date is insufficient
+        input(type="number" name='index' placeholder="0") 
+        label(for="rel_path") Relative path of page to be managed
+            span.--required (req)
+        input(type="text" name='rel_path' required)
+        input.button(type="submit" value="Next")
