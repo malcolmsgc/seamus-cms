@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 // mongoose.Promise = global.Promise;
 const validator = require('validator');
+const mongodbErrorHandler = require('mongoose-mongodb-errors');
 
 const pageSchema = new Schema({
     title: {
@@ -65,5 +66,7 @@ pageSchema.virtual('content', {
     localField: '_id',
     foreignField: 'page'
 });
+
+pageSchema.plugin(mongodbErrorHandler);
 
 module.exports = mongoose.model('Page', pageSchema);

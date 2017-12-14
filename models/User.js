@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const md5 = require('md5');
 const validator = require('validator');
 /** @requires mongoose-mongodb-errors
- * mongoose-mongodb-errors is npm module used in User model to provide human readable validation in case of duplicate email address, which is used as key for authentication strategy applied via passport
+ * mongoose-mongodb-errors is npm module used in User model to provide human readable error messages in case of a duplicate key, which in this case is the user's email address.
  */
 const mongodbErrorHandler = require('mongoose-mongodb-errors');
 const passportLocalMongoose = require('passport-local-mongoose');
