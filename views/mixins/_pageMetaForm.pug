@@ -1,5 +1,5 @@
-mixin pageMetaForm()
-    form.form(method="POST")
+mixin pageMetaForm(page = {})
+    form.form(action="/meta" method="POST")
         h2 Create page
         label(for="title") Page title
         input(type="text" name='title' placeholder="Untitled page") 
@@ -10,5 +10,6 @@ mixin pageMetaForm()
         input(type="number" name='index' placeholder="0") 
         label(for="rel_path") Relative path of page to be managed
             span.--required (req)
-        input(type="text" name='rel_path' required)
+        - const pathValue = page.rel_path ? page.rel_path : "/"
+        input(type="text" name='rel_path' placeholder="/here/there" value=pathValue required)
         input.button(type="submit" value="Next")

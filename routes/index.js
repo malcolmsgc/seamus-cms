@@ -33,5 +33,8 @@ authController.login
 
 router.post('/login', authController.login );
 
+router.post('/meta', navController.savePageMeta );
+router.post('/schema', navController.savePageSchema );
+
 
 module.exports = router;

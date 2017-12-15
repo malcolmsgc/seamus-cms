@@ -1,5 +1,5 @@
-mixin pageSchemaForm()
-    form.form(method="POST")
+mixin pageSchemaForm(page = {})
+    form.form(action="/schema" method="POST")
         h2 Create page
         p Choose what content to manage
         p: em Fields will be added to a single CMS page. You can add as many pages as you like
@@ -12,5 +12,5 @@ mixin pageSchemaForm()
         input(type="number" name='index' placeholder="0") 
         label(for="rel_path") Relative path of page to be managed
             span.--required (req)
-        input(type="text" name='rel_path' required)
+        input(type="text" name='rel_path' placeholder="/" required)
         input.button(type="submit" value="Next")

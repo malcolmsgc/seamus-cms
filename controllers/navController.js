@@ -3,7 +3,7 @@ const User = mongoose.model('User');
 const promisify = require('es6-promisify');
 
 exports.mainPage = (req, res) => {
-    res.render('main', {title: 'settings.sitename'});
+    res.render('console', {title: 'console'});
 };
 
 exports.loginPage = (req, res) => {
@@ -25,3 +25,10 @@ exports.setUpPage = (req, res) => {
     res.render('editPage', {title: 'Set up page'});
 };
 
+exports.savePageMeta = (req, res) => {
+    res.send('👷🏼‍ Under construction');
+};
+
+exports.savePageSchema = (req, res) => {
+    res.send('👷🏼‍ Under construction');
+};

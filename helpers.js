@@ -19,9 +19,9 @@ exports.icon = (name) => fs.readFileSync(`./public/images/icons/${name}.svg`);
 exports.siteName = `Seamus CMS`;
 
 exports.menu = [
-  { slug: '/stores', title: 'Stores', icon: 'top', },
+  { slug: '/', title: 'Console', icon: 'top', },
+  { slug: '/top', title: '{sitename}', icon: 'top', },
   { slug: '/tags', title: 'Tags', icon: 'tag', },
-  { slug: '/top', title: 'Top', icon: 'top', },
-  { slug: '/add', title: 'Add', icon: 'add', },
-  { slug: '/map', title: 'Map', icon: 'map', },
+  { slug: '/addpage/', title: 'Add Page', icon: 'add', },
+  { slug: '/settings', title: 'Settings', icon: 'cog', },
 ];
