@@ -3,7 +3,6 @@ const Schema = mongoose.Schema;
 // mongoose.Promise = global.Promise;
 const validator = require('validator');
 const beautifyUnique = require('mongoose-beautiful-unique-validation');
-// const mongodbErrorHandler = require('mongoose-mongodb-errors');
 
 const pageSchema = new Schema({
     title: {

@@ -1,10 +1,8 @@
-import { String } from 'core-js/library/web/timers';
-
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 // mongoose.Promise = global.Promise;
 const validator = require('validator');
-const mongodbErrorHandler = require('mongoose-mongodb-errors');
+const beautifyUnique = require('mongoose-beautiful-unique-validation');
 
 const contentSchema = new Schema({
     page: {
@@ -28,7 +26,7 @@ const contentSchema = new Schema({
     */
     index: {
         type: Number,
-        unique: true
+        unique: 'index {VALUE} is already in use. The index must be unique.'
     },
     /** @property {string} type
      * type specifies the type of content. Possible values are:
@@ -77,6 +75,6 @@ const contentSchema = new Schema({
     }
 });
 
-contentSchema.plugin(mongodbErrorHandler);
+contentSchema.plugin(beautifyUnique);
 
 module.exports = mongoose.model('Content', contentSchema);

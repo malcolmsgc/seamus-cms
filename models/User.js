@@ -3,16 +3,16 @@ const Schema = mongoose.Schema;
 // mongoose.Promise = global.Promise;
 const md5 = require('md5');
 const validator = require('validator');
-/** @requires mongoose-mongodb-errors
+/** @requires mongoose-beautiful-unique-validation
  * mongoose-mongodb-errors is npm module used in User model to provide human readable error messages in case of a duplicate key, which in this case is the user's email address.
  */
-const mongodbErrorHandler = require('mongoose-mongodb-errors');
+const beautifyUnique = require('mongoose-beautiful-unique-validation');
 const passportLocalMongoose = require('passport-local-mongoose');
 
 const userSchema = new Schema({
     email: {
         type: String,
-        unique: true,
+        unique: '{VALUE} has already been used.',
         lowercase: true,
         trim: true,
         validate: [validator.isEmail, 'Invalid email address'],
@@ -53,6 +53,6 @@ userSchema.virtual('gravatar').get(function () {
     return `https://gravatar.com/avatar/${hash}?s=200`;
 });
 userSchema.plugin(passportLocalMongoose, { usernameField: 'email' });
-userSchema.plugin(mongodbErrorHandler);
+userSchema.plugin(beautifyUnique);
 
 module.exports = mongoose.model('User', userSchema);
