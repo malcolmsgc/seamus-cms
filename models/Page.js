@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 // mongoose.Promise = global.Promise;
 const validator = require('validator');
-const mongodbErrorHandler = require('mongoose-mongodb-errors');
+const beautifyUnique = require('mongoose-beautiful-unique-validation');
+// const mongodbErrorHandler = require('mongoose-mongodb-errors');
 
 const pageSchema = new Schema({
     title: {
@@ -29,7 +30,7 @@ const pageSchema = new Schema({
         type: String,
         trim: true,
         lowercase: true,
-        unique: true,
+        unique: 'The relative path "{VALUE}" has already been used. Please supply a unique path.',
         required: 'Provide full relative path of page. Must be unique.'
     },
     /**
@@ -67,6 +68,6 @@ pageSchema.virtual('content', {
     foreignField: 'page'
 });
 
-pageSchema.plugin(mongodbErrorHandler);
+pageSchema.plugin(beautifyUnique);
 
 module.exports = mongoose.model('Page', pageSchema);

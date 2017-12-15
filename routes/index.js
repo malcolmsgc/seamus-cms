@@ -9,6 +9,7 @@ const router = express.Router();
 const navController = require('../controllers/navController');
 const userController = require('../controllers/userController');
 const authController = require('../controllers/authController');
+const pageController = require('../controllers/pageController');
 const { authCheck } = require ('../controllers/authController');
 const { catchErrors } = require('../handlers/errorHandlers');
 
@@ -33,8 +34,8 @@ authController.login
 
 router.post('/login', authController.login );
 
-router.post('/meta', navController.savePageMeta );
-router.post('/schema', navController.savePageSchema );
+router.post('/meta', catchErrors(pageController.savePageMeta) );
+router.post('/schema', catchErrors(pageController.savePageSchema) );
 
 
 module.exports = router;

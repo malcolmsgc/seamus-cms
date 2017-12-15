@@ -25,3 +25,15 @@ exports.menu = [
   { slug: '/addpage/', title: 'Add Page', icon: 'add', },
   { slug: '/settings', title: 'Settings', icon: 'cog', },
 ];
+
+/** @function deleteEmptyFields
+ *  @param {object} obj
+ *  @returns new object similar to supplied param but altered so any properties that had a value of an empty string are removed. Original object is left unaltered
+ */
+exports.deleteEmptyFields = (obj) => {
+  const newObj = {...obj};
+  Object.keys(newObj).forEach( (key) => {
+    if (newObj[key] === '') delete newObj[key];
+  });
+  return newObj;
+};

@@ -24,11 +24,3 @@ exports.addPage = (req, res) => {
 exports.setUpPage = (req, res) => {
     res.render('editPage', {title: 'Set up page'});
 };
-
-exports.savePageMeta = (req, res) => {
-    res.send('👷🏼‍ Under construction');
-};
-
-exports.savePageSchema = (req, res) => {
-    res.send('👷🏼‍ Under construction');
-};

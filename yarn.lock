@@ -4309,6 +4309,10 @@ mongodb@2.2.33, "mongodb@>= 1.2.0 <3.0.0":
     mongodb-core "2.1.17"
     readable-stream "2.2.7"
 
+mongoose-beautiful-unique-validation@^7.0.0:
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/mongoose-beautiful-unique-validation/-/mongoose-beautiful-unique-validation-7.0.0.tgz#24a7db461d0ad1d0ef2b802ed78777dc4266cc2a"
+
 mongoose-mongodb-errors@^0.0.2:
   version "0.0.2"
   resolved "https://registry.yarnpkg.com/mongoose-mongodb-errors/-/mongoose-mongodb-errors-0.0.2.tgz#7feacb8c901b5f899c616652337b2f499717291c"
