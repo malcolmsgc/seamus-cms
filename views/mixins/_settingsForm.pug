@@ -1,0 +1,15 @@
+mixin settingsForm()
+    form.form(action="/meta" method="POST")
+        h2 Create page
+        label(for="title") Site name
+        input(type="text" name='title' placeholder="Untitled page") 
+        label(for="subtitle") Domain Name / Root path
+        input(type="text" name='subtitle')
+        label(for="index") Page index
+        p This will be used to sequence pages if ordering by name or date is insufficient
+        input(type="number" name='index' placeholder="0") 
+        label(for="rel_path") Relative path of page to be managed
+            span.--required (req)
+        - const pathValue = page.rel_path ? page.rel_path : "/"
+        input(type="text" name='rel_path' placeholder="/here/there" value=pathValue required)
+        input.button(type="submit" value="Next")

@@ -4,12 +4,55 @@ const Schema = mongoose.Schema;
 const validator = require('validator');
 const beautifyUnique = require('mongoose-beautiful-unique-validation');
 
+/** @constructor contentTypesSchema 
+ * contentTypesSchema is a child of settingsSchema. It contains booleans to show what syntax an administrator allows users to use for text input  */
+const contentTypesSchema = new Schema(
+    {
+        markdown: {
+            type: Boolean,
+            default: true
+        },
+        html: {
+            type: Boolean,
+            default: false
+        },
+        ejs: {
+            type: Boolean,
+            default: false
+        },
+        pug: {
+            type: Boolean,
+            default: false
+        },
+        jsx: {
+            type: Boolean,
+            default: false
+        }
+    }
+);
+
 const settingsSchema = new Schema({
-    //your site's name
-    // allow html?
-    // root / tld
-    // single or multi page
-    // admin exsits?
+    sitename: {
+        type: String,
+        required: 'A site name is required',
+        trim: true
+    },
+    root_path: {
+        type: String,
+        trim: true,
+        required: 'A root path (usually the domain name) is required',
+        validate: [validator.isFQDN, {require_tld: false}]
+    },
+    extended_syntax: {
+        type: contentTypesSchema,
+        required: 'No extended sytax settings set'
+    },
+    multipage: {
+        type: Boolean,
+        required: 'Single- / multi-page setting not set',
+        default: false
+    }
 });
+
 
 module.exports = mongoose.model('Setting', settingsSchema);

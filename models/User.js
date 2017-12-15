@@ -52,6 +52,13 @@ userSchema.virtual('gravatar').get(function () {
     const hash = md5(this.email);
     return `https://gravatar.com/avatar/${hash}?s=200`;
 });
+
+userSchema.static.adminExists = function() {
+    const numAdmins = this.find({ role: 'administrator'}).count();
+    return numAdmins > 0;
+};
+
+
 userSchema.plugin(passportLocalMongoose, { usernameField: 'email' });
 userSchema.plugin(beautifyUnique);
 
