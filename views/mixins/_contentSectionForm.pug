@@ -15,7 +15,9 @@ mixin contentSectionForm(id)
         input(type="number" name='index' placeholder="0") 
         label(for="css_selector") CSS selector that associated with content
         input(type="text" name='css_selector' placeholder="#id")
+        label(for="type") What type of content will this section manage?
         select(required name="type")
+            option(selected disabled) Choose content type
             option(value="heading") Heading
             option(value="text") Text
             option(value="image") Image
