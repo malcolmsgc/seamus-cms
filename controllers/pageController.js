@@ -13,10 +13,12 @@ exports.saveSettings = async (req, res) => {
     const newSettings = {...req.body};
     newSettings._id = settingsID;
     newSettings.extended_syntax = { markdown, html, ejs, pug, jsx };
-    // check if any document exists
+    // check if the document already exists
     const currentSettings = await Settings.find({ _id: settingsID });
     // if it doesn't exist create it
-    if (!currentSettings) {
+    // res.json(currentSettings);
+    // return;
+    if (!currentSettings.length) {
         await (new Settings(newSettings)).save();
         req.flash('success', `Settings saved`);
         res.redirect('/');
