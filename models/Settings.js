@@ -4,13 +4,14 @@ const Schema = mongoose.Schema;
 const validator = require('validator');
 const beautifyUnique = require('mongoose-beautiful-unique-validation');
 
+
 /** @constructor contentTypesSchema 
  * contentTypesSchema is a child of settingsSchema. It contains booleans to show what syntax an administrator allows users to use for text input  */
 const contentTypesSchema = new Schema(
     {
         markdown: {
             type: Boolean,
-            default: true
+            default: false
         },
         html: {
             type: Boolean,
@@ -52,7 +53,8 @@ const settingsSchema = new Schema({
         required: 'Single- / multi-page setting not set',
         default: false
     }
-});
+},{ id: false }); //prevent auto generation of id to have more control in restricting collection to a single document
 
+settingsSchema.plugin(beautifyUnique);
 
 module.exports = mongoose.model('Setting', settingsSchema);

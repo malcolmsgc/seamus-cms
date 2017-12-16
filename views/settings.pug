@@ -1,0 +1,10 @@
+extends layout
+
+include mixins/_header
+include mixins/_settingsForm
+
+block header
+    +header(user)
+
+block content
+    +settingsForm()

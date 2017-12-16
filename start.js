@@ -21,7 +21,7 @@ console.log('Requiring models...');
 require('./models/User');
 // require('./models/Content');
 require('./models/Page');
-// require('./models/Setting');
+require('./models/Settings');
 
 // Start our app!
 const app = require('./app');

@@ -10,6 +10,10 @@ exports.loginPage = (req, res) => {
     res.render('login', {title: 'login'});
 };
 
+exports.settingsPage = (req, res) => {
+    res.render('settings', {title: 'Settings'});
+};
+
 exports.addPage = (req, res) => {
     if (!req.params.step || req.params.step == '1') {
         res.render('editPageMeta', {title: 'Add a new CMS page'});

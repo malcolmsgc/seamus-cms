@@ -49,6 +49,7 @@ exports.appendRole = async (req, res, next) => {
     next();
 }
 
+
 exports.register = async (req, res, next) => {
     const { email, firstname, lastname, password, role } = req.body;
     const user =  new User({ email, firstname, lastname, role });

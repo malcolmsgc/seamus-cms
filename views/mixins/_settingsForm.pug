@@ -1,15 +1,28 @@
 mixin settingsForm()
-    form.form(action="/meta" method="POST")
+    form.form(action="/settings" method="POST")
         h2 Create page
-        label(for="title") Site name
-        input(type="text" name='title' placeholder="Untitled page") 
-        label(for="subtitle") Domain Name / Root path
-        input(type="text" name='subtitle')
-        label(for="index") Page index
-        p This will be used to sequence pages if ordering by name or date is insufficient
-        input(type="number" name='index' placeholder="0") 
-        label(for="rel_path") Relative path of page to be managed
-            span.--required (req)
-        - const pathValue = page.rel_path ? page.rel_path : "/"
-        input(type="text" name='rel_path' placeholder="/here/there" value=pathValue required)
-        input.button(type="submit" value="Next")
+        label(for="sitename") Site name
+        input(type="text" name='sitename' placeholder="Untitled website") 
+        label(for="root_path") Domain Name / Root path
+        input(type="text" name='root_path')
+        fieldset(name="extended_syntax")
+            legend Allow the following types of syntax
+            input(type="checkbox" name='markdown' value="true")
+            label(for="markdown") Markdown 
+            input(type="checkbox" name='html' value="true")
+            label(for="html") HTML 
+            input(type="checkbox" name='pug' value="true")
+            label(for="pug") pug 
+            input(type="checkbox" name='jsx' value="true")
+            label(for="jsx") jsx 
+            input(type="checkbox" name='ejs' value="true")
+            label(for="ejs") ejs
+        input(type="radio" id='multi' name='multipage' value='true') 
+        label(for='multi') Multipage site
+        input(type="radio" id='single' name='multipage' value='false')
+        label(for='single') Single page site
+        input.button(type="submit" value="Save")
+
+        
+          
+        

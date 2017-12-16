@@ -21,6 +21,7 @@ router.get('/', navController.mainPage );
 router.get('/login', userController.loginPage );
 router.get('/logout', authController.logout );
 router.get('/register', userController.registerPage );
+router.get('/settings', navController.settingsPage );
 router.get('/addpage/(:step)?', navController.addPage );
 // router.get('/page/:page/edit/:step', navController.editPage );
 
@@ -34,6 +35,7 @@ authController.login
 
 router.post('/login', authController.login );
 
+router.post('/settings', catchErrors(pageController.saveSettings) );
 router.post('/meta', catchErrors(pageController.savePageMeta) );
 router.post('/schema', catchErrors(pageController.savePageSchema) );
 
