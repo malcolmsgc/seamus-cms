@@ -1,25 +1,26 @@
-mixin settingsForm()
+mixin settingsForm(s = {})
     form.form(action="/settings" method="POST")
         h2 Create page
         label(for="sitename") Site name
-        input(type="text" name='sitename' placeholder="Untitled website") 
+        input(type="text" name='sitename' placeholder="Untitled website" value=(s.sitename)) 
         label(for="root_path") Domain Name / Root path
-        input(type="text" name='root_path')
-        fieldset(name="extended_syntax")
+        input(type="text" name='root_path' value=(s.root_path))
+        fieldset
             legend Allow the following types of syntax
-            input(type="checkbox" name='markdown' value="true")
+            - const support = s.extended_syntax
+            input(type="checkbox" name='markdown' value="true" checked=(support.markdown))
             label(for="markdown") Markdown 
-            input(type="checkbox" name='html' value="true")
+            input(type="checkbox" name='html' value="true" checked=(support.html))
             label(for="html") HTML 
-            input(type="checkbox" name='pug' value="true")
+            input(type="checkbox" name='pug' value="true" checked=(support.pug))
             label(for="pug") pug 
-            input(type="checkbox" name='jsx' value="true")
+            input(type="checkbox" name='jsx' value="true" checked=(support.jsx))
             label(for="jsx") jsx 
-            input(type="checkbox" name='ejs' value="true")
+            input(type="checkbox" name='ejs' value="true" checked=(support.ejs))
             label(for="ejs") ejs
-        input(type="radio" id='multi' name='multipage' value='true') 
+        input(type="radio" id='multi' name='multipage' value='true' checked=(s.multipage)) 
         label(for='multi') Multipage site
-        input(type="radio" id='single' name='multipage' value='false')
+        input(type="radio" id='single' name='multipage' value='false' checked=(!s.multipage))
         label(for='single') Single page site
         input.button(type="submit" value="Save")
 

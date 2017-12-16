@@ -20,15 +20,13 @@ exports.saveSettings = async (req, res) => {
     // return;
     if (!currentSettings.length) {
         await (new Settings(newSettings)).save();
-        req.flash('success', `Settings saved`);
-        res.redirect('/');
     }
     // if it exists, update it
     else {
-        res.send("Yo homey");
+        await Settings.findOneAndUpdate({ _id: settingsID }, newSettings, { new: true, runValidators: true }).exec();
     }
-    return;
-    
+    req.flash('success', `Settings saved`);
+    res.redirect('back');
 };
 
 exports.savePageMeta = async (req, res) => {

@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 const User = mongoose.model('User');
+const Settings = mongoose.model('Setting');
 const promisify = require('es6-promisify');
+const settingsID = mongoose.Types.ObjectId(process.env.APP_SETTINGS_ID);
+
 
 exports.mainPage = (req, res) => {
     res.render('console', {title: 'console'});
@@ -10,8 +13,9 @@ exports.loginPage = (req, res) => {
     res.render('login', {title: 'login'});
 };
 
-exports.settingsPage = (req, res) => {
-    res.render('settings', {title: 'Settings'});
+exports.settingsPage = async (req, res) => {
+    const settings = await (Settings.findOne({ _id: settingsID })) || {};
+    res.render('settings', {title: 'Settings', s: settings });
 };
 
 exports.addPage = (req, res) => {
