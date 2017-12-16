@@ -7,7 +7,6 @@ const settingsID = mongoose.Types.ObjectId(process.env.APP_SETTINGS_ID);
 // const settingsID = process.env.APP_SETTINGS_ID;
 
 exports.saveSettings = async (req, res) => {
-    // NEED TO LOCK ID AS ONLY ONE DOCUMENT
     // Create new settings object
     const { markdown, html, ejs, pug, jsx } = req.body;
     const newSettings = {...req.body};
@@ -16,17 +15,18 @@ exports.saveSettings = async (req, res) => {
     // check if the document already exists
     const currentSettings = await Settings.find({ _id: settingsID });
     // if it doesn't exist create it
-    // res.json(currentSettings);
-    // return;
     if (!currentSettings.length) {
         await (new Settings(newSettings)).save();
+        req.flash('success', `Settings saved`);
+        req.flash('info', `Next, create a page`);
+        res.redirect('/');
     }
     // if it exists, update it
     else {
         await Settings.findOneAndUpdate({ _id: settingsID }, newSettings, { new: true, runValidators: true }).exec();
+        req.flash('success', `Settings updated`);
+        res.redirect('back');
     }
-    req.flash('success', `Settings saved`);
-    res.redirect('back');
 };
 
 exports.savePageMeta = async (req, res) => {
