@@ -4,40 +4,40 @@ mixin contentSectionForm(id)
     hr
     //- Future iterations may use (contenteditable="true") instead of form fields
     p: strong New Section
-    form(name=`content_${id}` action='/schema/${id}' method="POST")
+    //- form(name=`content_${id}` action='/schema/${id}' method="POST")
 
-        label(for="title") Title for content section
-            span.--required (req)
-        input(type="text" name='title' placeholder="Untitled section") 
-        label(for="index") index
-        p This will be used to order the content sections on the page
-        p if no index is provided the sections will be arranged in order of their creation
-        input(type="number" name='index' placeholder="0") 
-        label(for="css_selector") CSS selector that associated with content
-        input(type="text" name='css_selector' placeholder="#id")
-        label(for="type") What type of content will this section manage?
-        select(required name="type")
-            option(selected disabled) Choose content type
-            option(value="heading") Heading
-            option(value="text") Text
-            option(value="image") Image
-        fieldset
-            legend Rules
-            p Seamus currently does no policing of any content rules. Rules are displayed as a guideline for users to adhere to.
-            label(for="rule") Rules
-            textarea(name='rule') 
-            label(for="max_value") Max value
-            input(type="number" name='max_value') 
-            label(for="min_value") Min value
-            input(type="number" name='min_value') 
-            label(for="max_unit") Unit for max value
-            input(type="text" name='max_unit') 
-            label(for="min_unit") Unit for min value
-            input(type="text" name='min_unit') 
-            label(for="max_apply_to") Max value
-            input(type="text" name='max_apply_to') 
-            label(for="min_apply_to") Min value
-            input(type="text" name='min_apply_to') 
+    label(for="title") Title for content section
+        span.--required (req)
+    input(type="text" name='title' placeholder="Untitled section") 
+    label(for="index") index
+    p This will be used to order the content sections on the page
+    p if no index is provided the sections will be arranged in order of their creation
+    input(type="number" name='index' placeholder="0") 
+    label(for="css_selector") CSS selector that associated with content
+    input(type="text" name='css_selector' placeholder="#id")
+    label(for="type") What type of content will this section manage?
+    select(required name="type")
+        option(disabled selected value="") Choose content type
+        option(value="heading") Heading
+        option(value="text") Text
+        option(value="image") Image
+    fieldset
+        legend Rules
+        p Seamus currently does no policing of any content rules. Rules are displayed as a guideline for users to adhere to.
+        label(for="rule") Rules
+        textarea(name='rule') 
+        label(for="max_value") Max value
+        input(type="number" name='max_value') 
+        label(for="min_value") Min value
+        input(type="number" name='min_value') 
+        label(for="max_unit") Unit for max value
+        input(type="text" name='max_unit') 
+        label(for="min_unit") Unit for min value
+        input(type="text" name='min_unit') 
+        label(for="max_apply_to") Max value
+        input(type="text" name='max_apply_to') 
+        label(for="min_apply_to") Min value
+        input(type="text" name='min_apply_to') 
 
 
         

@@ -38,5 +38,6 @@ exports.savePageMeta = async (req, res) => {
 };
 
 exports.savePageSchema = (req, res) => {
-    res.send('👷🏼‍ Under construction');
+    res.json(req.body);
+    return;
 };

@@ -9,5 +9,5 @@ mixin pageSchemaForm(page = {})
         button.nav__link(type="button") 
             != h.icon('add')
             span Add section
-        
+        +contentSectionForm(Date.now())
         input.button(for="page_schema" type="submit" value="Save")
