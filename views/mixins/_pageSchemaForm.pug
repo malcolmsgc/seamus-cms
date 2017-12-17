@@ -6,8 +6,12 @@ mixin pageSchemaForm(page = {})
         p Choose what content to manage
         +contentSectionForm(Date.now())
         //- change class on button
-        button.nav__link(type="button") 
+    
+        //- Getting nowhere with this. Think it'll need to be handled wholesale on the JS side with a separate file
+        // - put markup for contentSectionForm into node and use 
+        // - this.parentNode.insetBefore(contentSectionForm, this)
+    
+        button.nav__link(type="button" id="addSectionBtn" onClick="") 
             != h.icon('add')
             span Add section
-        +contentSectionForm(Date.now())
         input.button(for="page_schema" type="submit" value="Save")

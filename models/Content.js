@@ -40,7 +40,8 @@ const contentSchema = new Schema({
      */
     type: {
         type: String,
-        enum: [ 'image','text','html','md','ejs','pug','jsx','heading' ]
+        enum: [ 'image','text','html','md','ejs','pug','jsx','heading' ],
+        required: 'You must supply your selection for the type of content'
     },
     /** @property rules {object}
      *  stores information about rules, instructions and restrictions on content
