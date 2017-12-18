@@ -5,13 +5,14 @@ mixin pageSchemaForm(page = {})
         h2 Add content sections
         p Choose what content to manage
         +contentSectionForm(Date.now())
+    
+        //- In a very inelegant solution to being able to add subsequent form sections on button click, the markup for the section of the form is in a JS file. Because PUG compiles before runtime manipulating the DOM with PUG isn't doable in any way I could think of
+
+        //- put markup for contentSectionForm into node and use 
+        //- this.parentNode.insetBefore(contentSectionForm, this)
         //- change class on button
-    
-        //- Getting nowhere with this. Think it'll need to be handled wholesale on the JS side with a separate file
-        // - put markup for contentSectionForm into node and use 
-        // - this.parentNode.insetBefore(contentSectionForm, this)
-    
-        button.nav__link(type="button" id="addSectionBtn" onClick="") 
+        button.nav__link(type="button" id="addSectionBtn") 
             != h.icon('add')
             span Add section
         input.button(for="page_schema" type="submit" value="Save")
+    

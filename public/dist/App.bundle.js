@@ -66,14 +66,16 @@
 /******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
-/******/ ([
-/* 0 */
+/******/ ({
+
+/***/ 0:
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
 
 /***/ }),
-/* 1 */
+
+/***/ 1:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -81,6 +83,39 @@
 
 __webpack_require__(0);
 
+var _addContentSection = __webpack_require__(8);
+
+var _addContentSection2 = _interopRequireDefault(_addContentSection);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var addSectionBtn = document.querySelector('#addSectionBtn');
+addSectionBtn.addEventListener('click', _addContentSection2.default);
+
+/***/ }),
+
+/***/ 8:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+function addContentSection() {
+    var fragment = document.createDocumentFragment();
+    var section = document.createElement('section');
+    fragment.appendChild(section);
+    var markup = '\n        <h1>NEW SECTION</h1>\n    ';
+    section.innerHTML = markup;
+    var form = this.parentNode;
+    form.insertBefore(section, this);
+}
+
+exports.default = addContentSection;
+
 /***/ })
-/******/ ]);
+
+/******/ });
 //# sourceMappingURL=App.bundle.js.map
