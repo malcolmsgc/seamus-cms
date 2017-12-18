@@ -10,6 +10,4 @@ function addContentSection() {
     form.insertBefore(section, this);
 }
 
-
-
 export default addContentSection;
