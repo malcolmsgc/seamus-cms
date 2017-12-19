@@ -1,20 +1,12 @@
-/*
-  Okay folks, want to learn a little bit about webpack?
-*/
-
 const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const autoprefixer = require('autoprefixer');
-/*
-  webpack sees every file as a module.
-  How to handle those files is up to loaders.
-  We only have a single entry point (a .js file) and everything is required from that js file
-*/
+const pugHtmlLoader = require('pug-html-loader');
 
 // This is our JavaScript rule that specifies what to do with .js files
 const javascript = {
-  test: /\.(js)$/, // see how we match anything that ends in `.js`? Cool
+  test: /\.(js)$/,
   use: [{
     loader: 'babel-loader',
     options: { 
@@ -35,7 +27,7 @@ const javascript = {
 };
 
 /*
-  This is our postCSS loader which gets fed into the next loader. I'm setting it up in it's own variable because its a didgeridog
+  This is our postCSS loader which gets fed into the next loader.
 */
 
 const postcss = {
@@ -45,19 +37,21 @@ const postcss = {
   }
 };
 
-// this is our sass/css loader. It handles files that are require('something.scss')
+// this is our sass/css loader.
 const styles = {
   test: /\.(scss)$/,
-  // here we pass the options as query params b/c it's short.
-  // remember above we used an object for each loader instead of just a string?
   // We don't just pass an array of loaders, we run them through the extract plugin so they can be outputted to their own .css file
   use: ExtractTextPlugin.extract(['css-loader?sourceMap', postcss, 'sass-loader?sourceMap'])
 };
 
-// We can also use plugins - this one will compress the crap out of our JS
 const uglify = new webpack.optimize.UglifyJsPlugin({ // eslint-disable-line
   compress: { warnings: false }
 });
+
+const pug = {
+    test: /\.pug$/,
+    loaders: [ 'html-loader', 'pug-html-loader' ]
+};
 
 // OK - now it's time to put it all together
 const config = {
@@ -79,7 +73,7 @@ const config = {
 
   // remember we said webpack sees everthing as modules and how different loaders are responsible for different file types? Here is is where we implement them. Pass it the rules for our JS and our styles
   module: {
-    rules: [javascript, styles]
+    rules: [javascript, styles, pug]
   },
   // finally we pass it an array of our plugins - uncomment if you want to uglify
   // plugins: [uglify]

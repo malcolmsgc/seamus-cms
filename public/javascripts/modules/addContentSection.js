@@ -1,10 +1,10 @@
+const markup = require('../../../views/includes/_contentSectionForm.pug');
+
 function addContentSection() {
     const fragment = document.createDocumentFragment();
     const section = document.createElement('section');
     fragment.appendChild(section);
-    const markup = `
-        <h1>NEW SECTION</h1>
-    `;
+    console.log(markup);
     section.innerHTML = markup;
     const form = this.parentNode;
     form.insertBefore(section, this);
