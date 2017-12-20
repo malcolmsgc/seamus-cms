@@ -30,8 +30,7 @@ exports.addPage = (req, res, next) => {
         res.render('editPageMeta', { title: 'Add a new CMS page' });
     }
     else if (req.params.step == '2') {
-        console.log('addPage pid: ' + req.pid);
-            res.render('editPage', { title: 'Set up new CMS page', page: { _id: req.pid, verb: "Add" } });
+        res.render('editPage', { title: 'Set up new CMS page', page: { _id: req.pid, verb: "Add" } });
     }
     else {
         const err = new Error('Not Found');

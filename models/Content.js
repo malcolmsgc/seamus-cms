@@ -26,7 +26,8 @@ const contentSchema = new Schema({
     */
     index: {
         type: Number,
-        unique: 'index {VALUE} is already in use. The index must be unique.'
+        unique: 'index {VALUE} is already in use. The index must be unique.',
+        required: 'An index for a content section must be recorded'
     },
     /** @property {string} type
      * type specifies the type of content. Possible values are:

@@ -66,9 +66,23 @@ exports.checkPageExists = async (req, res, next) => {
     }
 };
 
-exports.savePageSchema = (req, res) => {
-    //check page exists - redirect if not
-    console.log(req.params.pageId);
-    const formatted = {};
-    res.redirect(`/`);
+exports.savePageSchema = async (req, res, next) => {
+    //if ID invalid throw error and return
+    if (!mgIdIsValid(req.params.pageId)) { 
+        const err = new Error('Page ID is invalid');
+        err.status = 400;
+        next(err);
+        return;
+    }
+    res.json(req.body);
+    //check if any indexes
+        // if all indexes provided continue
+        // if some indexes provided find highest and fill in the rest incrementally
+        //MODEL REQUIRES INDEX SO MUST BE SET PROGRAMATICALLY IF ABSENT
+    // iterate over req.body and bundle into separate objects (make a constructor?)
+    //delete empty fields
+    // band off request/s to DB
+    res.end();
+    // res.redirect(`/`);
+    //on success, redirect to page edit screen
 };
