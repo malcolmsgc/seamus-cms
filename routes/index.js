@@ -22,7 +22,7 @@ router.get('/login', userController.loginPage );
 router.get('/logout', authController.logout );
 router.get('/register', userController.registerPage );
 router.get('/settings', navController.settingsPage );
-router.get('/addpage/(:step)?', navController.addPage );
+router.get('/addpage/(:step)?', catchErrors(pageController.checkPageExists), navController.addPage );
 // router.get('/page/:page/edit/:step', navController.editPage );
 
 // FORM SUBMISSIONS
@@ -36,8 +36,8 @@ authController.login
 router.post('/login', authController.login );
 
 router.post('/settings', catchErrors(pageController.saveSettings) );
-router.post('/meta', catchErrors(pageController.savePageMeta) );
-router.post('/schema', catchErrors(pageController.savePageSchema) );
+router.post('/meta', catchErrors(pageController.saveNewPageMeta) );
+router.post('/schema/:pageId', catchErrors(pageController.savePageSchema) );
 
 
 module.exports = router;

@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
+const mgIdIsValid = mongoose.Types.ObjectId.isValid;
 const Page = mongoose.model('Page');
 const Settings = mongoose.model('Setting');
 // const promisify = require('es6-promisify');
 const { deleteEmptyFields } = require('../helpers');
 const settingsID = mongoose.Types.ObjectId(process.env.APP_SETTINGS_ID);
-// const settingsID = process.env.APP_SETTINGS_ID;
 
 exports.saveSettings = async (req, res) => {
     // Create new settings object
@@ -29,15 +29,38 @@ exports.saveSettings = async (req, res) => {
     }
 };
 
-exports.savePageMeta = async (req, res) => {
+/** @todo either a separate function or an adaption to this one to allow editing. Will need page ID */
+exports.saveNewPageMeta = async (req, res) => {
     const pageMeta = deleteEmptyFields(req.body);
     const page = await (new Page(pageMeta)).save();
     req.flash('success', `Page created for ${page.title}`);
-    res.redirect('/addpage/2');
-    // res.json({...req.body, pageMeta});
+    res.redirect(`/addpage/2?pid=${page._id}`);
+    // res.json({...page, ...req.body, ...res.locals});
+};
+
+exports.checkPageExists = async (req, res, next) => {
+    if (req.params.step !== '2') {
+        next();
+        return;
+    }
+    req.pid = req.query.pid || req.params.pageId;
+    // check if id is properly formed and document for page exists
+    const result = mgIdIsValid(req.pid) ? 
+        await Page.findById(req.pid, { id: 1 })
+        : null;
+    if (result) { 
+        next();
+        return;
+    }
+    else {
+        req.flash('error', 'You tried to edit a page that does not yet exist. Please add the page first or edit an existing page.');
+        res.redirect(`/`);
+    }
 };
 
 exports.savePageSchema = (req, res) => {
-    res.json(req.body);
-    return;
+    //check page exists - redirect if not
+    console.log(req.params.pageId);
+    const formatted = {};
+    res.redirect(`/`);
 };

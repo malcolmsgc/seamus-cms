@@ -66,9 +66,8 @@
 /******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
-/******/ ({
-
-/***/ 0:
+/******/ ([
+/* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -77,13 +76,12 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-var markup = __webpack_require__(12);
+var markup = __webpack_require__(3);
 
 function addContentSection() {
     var fragment = document.createDocumentFragment();
     var section = document.createElement('section');
     fragment.appendChild(section);
-    console.log(markup);
     section.innerHTML = markup;
     var form = this.parentNode;
     form.insertBefore(section, this);
@@ -92,22 +90,13 @@ function addContentSection() {
 exports.default = addContentSection;
 
 /***/ }),
-
-/***/ 1:
+/* 1 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
 
 /***/ }),
-
-/***/ 12:
-/***/ (function(module, exports) {
-
-module.exports = "<div class=\"content-section\"><hr/><p><strong>New Section</strong></p><label for=\"title\" required=\"required\">Title for content section<span class=\"--required\">(req)</span></label><input type=\"text\" name=\"title\" placeholder=\"Untitled section\"/><label for=\"index\">index</label><p>This will be used to order the content sections on the page</p><p><strong>Indexes must be unique. </strong>If no index is provided the sections will be arranged in order of their creation</p><input type=\"number\" name=\"index\" placeholder=\"0\"/><label for=\"css_selector\">CSS selector that associated with content</label><input type=\"text\" name=\"css_selector\" placeholder=\"#id\"/><label for=\"type\">What type of content will this section manage?</label><select required=\"required\" name=\"type\"><option disabled=\"disabled\" selected=\"selected\" value=\"\">Choose content type</option><option value=\"heading\">Heading</option><option value=\"text\">Text</option><option value=\"image\">Image</option></select><fieldset><legend>Rules</legend><p>Seamus currently does no policing of any content rules. Rules are displayed as a guideline for users to adhere to.</p><label for=\"rule\">Rules</label><textarea name=\"rule\"> </textarea><label for=\"max_value\">Max value</label><input type=\"number\" name=\"max_value\"/><label for=\"min_value\">Min value</label><input type=\"number\" name=\"min_value\"/><label for=\"max_unit\">Unit for max value</label><input type=\"text\" name=\"max_unit\"/><label for=\"min_unit\">Unit for min value</label><input type=\"text\" name=\"min_unit\"/><label for=\"max_apply_to\">Max value</label><input type=\"text\" name=\"max_apply_to\"/><label for=\"min_apply_to\">Min value</label><input type=\"text\" name=\"min_apply_to\"/></fieldset></div>";
-
-/***/ }),
-
-/***/ 2:
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -127,7 +116,12 @@ var addSectionBtn = document.querySelector('#addSectionBtn');
 
 addSectionBtn.addEventListener('click', _addContentSection2.default);
 
-/***/ })
+/***/ }),
+/* 3 */
+/***/ (function(module, exports) {
 
-/******/ });
+module.exports = "<div class=\"content-section\"><hr/><p><strong>New Section</strong></p><label for=\"title\" required=\"required\">Title for content section<span class=\"--required\">(req)</span></label><input type=\"text\" name=\"title\" placeholder=\"Untitled section\"/><label for=\"index\">index</label><p>This will be used to order the content sections on the page</p><p><strong>Indexes must be unique. </strong>If no index is provided the sections will be arranged in order of their creation</p><input type=\"number\" name=\"index\" placeholder=\"0\"/><label for=\"css_selector\">CSS selector that associated with content</label><input type=\"text\" name=\"css_selector\" placeholder=\"#id\"/><label for=\"type\">What type of content will this section manage?</label><select required=\"required\" name=\"type\"><option disabled=\"disabled\" selected=\"selected\" value=\"\">Choose content type</option><option value=\"heading\">Heading</option><option value=\"text\">Text</option><option value=\"image\">Image</option></select><fieldset><legend>Rules</legend><p>Seamus currently does no policing of any content rules. Rules are displayed as a guideline for users to adhere to.</p><label for=\"rule\">Rules</label><textarea name=\"rule\"> </textarea><label for=\"max_value\">Max value</label><input type=\"number\" name=\"max_value\"/><label for=\"min_value\">Min value</label><input type=\"number\" name=\"min_value\"/><label for=\"max_unit\">Unit for max value</label><input type=\"text\" name=\"max_unit\"/><label for=\"min_unit\">Unit for min value</label><input type=\"text\" name=\"min_unit\"/><label for=\"max_apply_to\">Max value</label><input type=\"text\" name=\"max_apply_to\"/><label for=\"min_apply_to\">Min value</label><input type=\"text\" name=\"min_apply_to\"/></fieldset></div>";
+
+/***/ })
+/******/ ]);
 //# sourceMappingURL=App.bundle.js.map
