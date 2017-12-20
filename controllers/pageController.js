@@ -9,7 +9,7 @@ const settingsID = mongoose.Types.ObjectId(process.env.APP_SETTINGS_ID);
 exports.saveSettings = async (req, res) => {
     // Create new settings object
     const { markdown, html, ejs, pug, jsx } = req.body;
-    const newSettings = {...req.body};
+    const newSettings = { ...req.body };
     newSettings._id = settingsID;
     newSettings.extended_syntax = { markdown, html, ejs, pug, jsx };
     // check if the document already exists
@@ -53,10 +53,10 @@ exports.checkPageExists = async (req, res, next) => {
     }
     req.pid = req.query.pid || req.params.pageId;
     // check if id is properly formed and document for page exists
-    const result = mgIdIsValid(req.pid) ? 
+    const result = mgIdIsValid(req.pid) ?
         await Page.findById(req.pid, { id: 1 })
         : null;
-    if (result) { 
+    if (result) {
         next();
         return;
     }
@@ -68,17 +68,39 @@ exports.checkPageExists = async (req, res, next) => {
 
 exports.savePageSchema = async (req, res, next) => {
     //if ID invalid throw error and return
-    if (!mgIdIsValid(req.params.pageId)) { 
+    if (!mgIdIsValid(req.params.pageId)) {
         const err = new Error('Page ID is invalid');
         err.status = 400;
         next(err);
         return;
     }
-    res.json(req.body);
-    //check if any indexes
-        // if all indexes provided continue
-        // if some indexes provided find highest and fill in the rest incrementally
-        //MODEL REQUIRES INDEX SO MUST BE SET PROGRAMATICALLY IF ABSENT
+    //check if any indexes. Indexes required by Model. If not assigned by user these need to be programatically assigned.
+    const { index: indexes } = req.body;
+    // sort ascending and take first (lowest) and last (highest) value
+    const indexesSorted = indexes.sort((a, b) => a > b );
+    const lowestIndex = parseInt( indexesSorted[0] );
+    const highestIndex = parseInt( indexesSorted[indexesSorted.length - 1] );
+    // if no indexes lowest index should be falsy (NaN or null) after parseInt
+    if (!lowestIndex) {
+        // if both lowest and highest values are falsy it means no indexes were given
+        if (!highestIndex) {
+            console.log('no indexes supplied');
+        }
+        // if no lowest value but highest value exists then some but not all indexes given
+        else {
+            console.log('some indexes supplied. Some are absent');
+        }
+    }
+    // if both highest and lowest values present then all indexes should be present and function can proceed
+    else {
+
+    }
+    res.json(indexes);
+
+    
+    // if all indexes provided continue
+    // if some indexes provided find highest and fill in the rest incrementally
+    //MODEL REQUIRES INDEX SO MUST BE SET PROGRAMATICALLY IF ABSENT
     // iterate over req.body and bundle into separate objects (make a constructor?)
     //delete empty fields
     // band off request/s to DB
@@ -86,3 +108,29 @@ exports.savePageSchema = async (req, res, next) => {
     // res.redirect(`/`);
     //on success, redirect to page edit screen
 };
+
+
+/** 
+ * @function bulkSave
+ * Bulk-upsert an array of records
+ * @param  {Array}    documents  List of records to update
+ * @param  {Model}    Model    Mongoose model to update
+ * @param  {Object}   match    Database field to match
+ * @return {Promise}  always resolves a BulkWriteResult
+ */
+// Adapted from answer given by konsumer on SO (https://stackoverflow.com/questions/25285232/bulk-upsert-in-mongodb-using-mongoose)
+function bulkSave(documents, Model, match) {
+    match = match || '_id';
+    return new Promise((resolve, reject) => {
+        const bulk = Model.collection.initializeUnorderedBulkOp();
+        documents.forEach((document) => {
+            var query = {};
+            query[match] = record[match];
+            bulk.find(query).upsert().updateOne(document);
+        });
+        bulk.execute(function (err, bulkres) {
+            if (err) return reject(err);
+            resolve(bulkres);
+        });
+    });
+}

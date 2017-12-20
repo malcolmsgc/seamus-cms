@@ -11,6 +11,7 @@ variables.env
 .eslintrc.json
 /fonts
 /photos
+sample.json
 
 # Images #
 ##########

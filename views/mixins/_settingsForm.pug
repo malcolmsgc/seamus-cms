@@ -12,6 +12,8 @@ mixin settingsForm(s = {})
             label(for="markdown") Markdown 
             input(type="checkbox" name='html' value="true" checked=(support && support.html))
             label(for="html") HTML 
+            input(type="checkbox" name='json' value="true" checked=(support && support.html))
+            label(for="json") JSON 
             input(type="checkbox" name='pug' value="true" checked=(support && support.pug))
             label(for="pug") pug 
             input(type="checkbox" name='jsx' value="true" checked=(support && support.jsx))

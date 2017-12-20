@@ -13,6 +13,10 @@ const contentTypesSchema = new Schema(
             type: Boolean,
             default: false
         },
+        json: {
+            type: Boolean,
+            default: false
+        },
         html: {
             type: Boolean,
             default: false
