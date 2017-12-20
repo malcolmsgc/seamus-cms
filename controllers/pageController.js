@@ -38,6 +38,14 @@ exports.saveNewPageMeta = async (req, res) => {
     // res.json({...page, ...req.body, ...res.locals});
 };
 
+
+/** @function checkPageExists
+ * validation of page's existence
+ * Id for page document is taken from either query string or url param and added to request as req.pid.
+ * Id structure is validated (if not mongoose returns ugly cast error)
+ * Query by id to see if document exists
+ * @throws error flash message if id invalid or if document doesn't exist.
+ */
 exports.checkPageExists = async (req, res, next) => {
     if (req.params.step !== '2') {
         next();
