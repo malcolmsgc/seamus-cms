@@ -74,8 +74,11 @@ exports.savePageSchema = async (req, res, next) => {
         next(err);
         return;
     }
+    //take copy of submitted form
+    let contentSchema = {...req.body};
     //check if any indexes. Indexes required by Model. If not assigned by user these need to be programatically assigned.
-    const { index: indexes } = req.body;
+    console.log(req.body);
+    const { index: indexes } = contentSchema;
     // sort ascending and take first (lowest) and last (highest) value
     const indexesSorted = indexes.sort((a, b) => a > b );
     const lowestIndex = parseInt( indexesSorted[0] );
@@ -85,6 +88,8 @@ exports.savePageSchema = async (req, res, next) => {
         // if both lowest and highest values are falsy it means no indexes were given
         if (!highestIndex) {
             console.log('no indexes supplied');
+            //transform sorted array's values to be the array index
+            contentSchema.index = indexes.map( (item, index) => index );
         }
         // if no lowest value but highest value exists then some but not all indexes given
         else {
@@ -93,9 +98,9 @@ exports.savePageSchema = async (req, res, next) => {
     }
     // if both highest and lowest values present then all indexes should be present and function can proceed
     else {
-
+        console.log('all indexes present.');
     }
-    res.json(indexes);
+    res.json(contentSchema);
 
     
     // if all indexes provided continue
