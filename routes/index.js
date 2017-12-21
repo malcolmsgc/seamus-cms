@@ -26,18 +26,22 @@ router.get('/addpage/(:step)?', catchErrors(pageController.checkPageExists), nav
 // router.get('/page/:page/edit/:step', navController.editPage );
 
 // FORM SUBMISSIONS
+    // USER AUTH
 router.post('/register',
-userController.validateRegister,
-catchErrors(userController.appendRole),
-userController.register,
-authController.login
+    userController.validateRegister,
+    catchErrors(userController.appendRole),
+    userController.register,
+    authController.login
 );
-
 router.post('/login', authController.login );
-
+    // CMS MANAGEMENT
 router.post('/settings', catchErrors(pageController.saveSettings) );
 router.post('/meta', catchErrors(pageController.saveNewPageMeta) );
-router.post('/schema/:pageId', catchErrors(pageController.savePageSchema) );
+router.post('/schema/:pageId', 
+    pageController.savePageSchemaPrep,
+    catchErrors(pageController.savePageSchema), 
+    catchErrors(pageController.savePageSchemaSingle) 
+);
 
 
 module.exports = router;

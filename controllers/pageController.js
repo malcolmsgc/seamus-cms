@@ -79,7 +79,7 @@ exports.checkPageExists = async (req, res, next) => {
  *  Split function into different middleware
  * @todo ensure _id captured and brought through for each content section when updating
  */
-exports.savePageSchema = async (req, res, next) => {
+exports.savePageSchemaPrep = (req, res, next) => {
     //if ID invalid throw error and return
     if (!mgIdIsValid(req.params.pageId)) {
         const err = new Error('Page ID is invalid');
@@ -87,22 +87,30 @@ exports.savePageSchema = async (req, res, next) => {
         next(err);
         return;
     }
-    //take copy of submitted form
+    const indexVal = req.body.index;
+    //check if single content section submitted. Check for string should suffice but added number in case some browser does some weird parsing.
+    req.singleSectionSave = (typeof indexVal === "string" || typeof indexVal === "number");
+    // console.log({singleSectionSave});
+    // req.singleSectionSave = singleSectionSave;
+    next();
+}
+
+exports.savePageSchema = async (req, res, next) => {
+    // If only one content section to save pass to next function: SavePageSchemaSingle
+    // SavePageSchemaSingle performs a single operation DB query whereas savePageSchema performs a bulk one
+    if (req.singleSectionSave) {
+        next()
+        return;
+    }
+    // Continue with multi document handling
+    // take copy of submitted form
     const contentSchema = {...req.body};
     //check if any indexes. Indexes required by Model. If not assigned by user these need to be programatically assigned.
     const { index: indexes } = contentSchema;
-    //check if single content section submitted. Check for string should suffice but added number in case some browser does some weird parsing.
-    const singleSectionSave = (typeof indexes === "string" || typeof indexes === "number");
-    console.log({singleSectionSave});
-    if (singleSectionSave) {
-        res.json(req.body);
-        return;
-    }
     // sort ascending and take first (lowest) and last (highest) value
     const indexesSorted = indexes.sort((a, b) => a > b );
-    const numDocs = indexesSorted.length;
     const lowestIndex = parseInt( indexesSorted[0] );
-    let highestIndex = parseInt( indexesSorted[numDocs - 1] );
+    let highestIndex = parseInt( indexesSorted[indexesSorted.length - 1] );
     // if no indexes lowest index should be falsy (NaN or null) after parseInt
     if (!lowestIndex) {
         // if both lowest and highest values are falsy it means no indexes were given
@@ -141,13 +149,17 @@ exports.savePageSchema = async (req, res, next) => {
         return docs;
     }, []);
 
-    res.json(documents);
-    //delete empty fields
-    // band off request/s to DB
-    res.end();
+    //delete empty fields - not necessary if we can use Content model constructor
+    // hand off request/s to DB
+    const bulk = await bulkSave(documents, Content, '_id');
+    res.send(bulk);
     // res.redirect(`/`);
     //on success, redirect to page edit screen
 };
+
+exports.savePageSchemaSingle = async (req, res, next) => {
+    res.json(req.body);
+}
 
 
 /** 
@@ -164,8 +176,8 @@ function bulkSave(documents, Model, match) {
     return new Promise((resolve, reject) => {
         const bulk = Model.collection.initializeUnorderedBulkOp();
         documents.forEach((document) => {
-            var query = {};
-            query[match] = record[match];
+            const query = {};
+            query[match] = document[match];
             bulk.find(query).upsert().updateOne(document);
         });
         bulk.execute(function (err, bulkres) {
