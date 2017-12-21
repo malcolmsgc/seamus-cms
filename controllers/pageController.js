@@ -2,10 +2,19 @@ const mongoose = require('mongoose');
 const mgIdIsValid = mongoose.Types.ObjectId.isValid;
 const Page = mongoose.model('Page');
 const Settings = mongoose.model('Setting');
+const Content = mongoose.model('Content');
 // const promisify = require('es6-promisify');
 const { deleteEmptyFields } = require('../helpers');
 const settingsID = mongoose.Types.ObjectId(process.env.APP_SETTINGS_ID);
 
+/** @function saveSettings
+ * @param {Object} req
+ * @param {Object} res
+ * @constant settingsID
+ * saves global app settings from a POST from the settings form.
+ * Values stored as doc in settings collection. settingsID always used as _id to prevent additional documents being created. 
+ * @todo refactor the two different DB queries into a single upsert using find/findOne
+ */
 exports.saveSettings = async (req, res) => {
     // Create new settings object
     const { markdown, html, ejs, pug, jsx } = req.body;
@@ -66,6 +75,10 @@ exports.checkPageExists = async (req, res, next) => {
     }
 };
 
+/** @todo handle singleSectionSave
+ *  Split function into different middleware
+ * @todo ensure _id captured and brought through for each content section when updating
+ */
 exports.savePageSchema = async (req, res, next) => {
     //if ID invalid throw error and return
     if (!mgIdIsValid(req.params.pageId)) {
@@ -75,13 +88,21 @@ exports.savePageSchema = async (req, res, next) => {
         return;
     }
     //take copy of submitted form
-    let contentSchema = {...req.body};
+    const contentSchema = {...req.body};
     //check if any indexes. Indexes required by Model. If not assigned by user these need to be programatically assigned.
     const { index: indexes } = contentSchema;
+    //check if single content section submitted. Check for string should suffice but added number in case some browser does some weird parsing.
+    const singleSectionSave = (typeof indexes === "string" || typeof indexes === "number");
+    console.log({singleSectionSave});
+    if (singleSectionSave) {
+        res.json(req.body);
+        return;
+    }
     // sort ascending and take first (lowest) and last (highest) value
     const indexesSorted = indexes.sort((a, b) => a > b );
+    const numDocs = indexesSorted.length;
     const lowestIndex = parseInt( indexesSorted[0] );
-    let highestIndex = parseInt( indexesSorted[indexesSorted.length - 1] );
+    let highestIndex = parseInt( indexesSorted[numDocs - 1] );
     // if no indexes lowest index should be falsy (NaN or null) after parseInt
     if (!lowestIndex) {
         // if both lowest and highest values are falsy it means no indexes were given
@@ -107,13 +128,20 @@ exports.savePageSchema = async (req, res, next) => {
     else {
         console.log('all indexes present.');
     }
-    res.json(contentSchema);
+    // iterate over contentSchema and turn into array of document objects
+    // get keys of form object - checked every time in case of Model / form updates
+    const formFields = Object.keys(contentSchema);
+    const documents = contentSchema.index.reduce( (docs, schemaIndex, index ) => {
+        const doc = {};
+        formFields.forEach( (field) => {
+            doc[field] = contentSchema[field][index]
+        });
+        const mgDoc = new Content(doc); //careful with this as will create new _ids if none exist already
+        docs.push(mgDoc);
+        return docs;
+    }, []);
 
-    
-    // if all indexes provided continue
-    // if some indexes provided find highest and fill in the rest incrementally
-    //MODEL REQUIRES INDEX SO MUST BE SET PROGRAMATICALLY IF ABSENT
-    // iterate over req.body and bundle into separate objects (make a constructor?)
+    res.json(documents);
     //delete empty fields
     // band off request/s to DB
     res.end();

@@ -19,7 +19,7 @@ mongoose.connection.on('error', (err) => {
 // Models
 console.log('Requiring models...');
 require('./models/User');
-// require('./models/Content');
+require('./models/Content');
 require('./models/Page');
 require('./models/Settings');
 
