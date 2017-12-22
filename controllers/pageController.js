@@ -167,28 +167,37 @@ exports.savePageSchema = async (req, res, next) => {
     const validationErrors = [];
     const documents = contentSchema.index.reduce( (docs, schemaIndex, index ) => {
         const rulesFieldRegex = /^(min)|^(max)|^(rule)/;
-        const doc = {};
+        const doc = {
+            rules: []
+        };
         doc.page = req.params.pageId;
         /** @todo LOW PRIORITY - extend how this handles rules to that multiple rules may be handled
          * keeping it simplish to start with and hardcoding it to a single rule but should have a base structure to easily refactor to accomodate more whenever needed
          */
-        const rules = [{}];
+        let ruleset = {};
         formFields.forEach( (field) => {
             // move rules into embedded-object
             if (rulesFieldRegex.test(field)) {
-                rules[0][field] = contentSchema[field][index];
+                ruleset[field] = contentSchema[field][index];
             }
             else doc[field] = contentSchema[field][index]
         });
-        doc.rules = deleteEmptyFields(rules[0]);
-        // console.log(rules);
+        ruleset = deleteEmptyFields(ruleset);
+        // if no rules delete the key on the doc
+        if ( !Object.keys(ruleset).length ) delete doc.rules;
+        else {
+            // add rules to array
+            doc.rules.push(ruleset);
+        }
         // check for existing ID. Create new id if none exists
         // not really nec if using mongoose model as constructor but leaving check for id in case mongoose schema put aside for some reason. Basically, I'm doing a little foolproofing.
         if (!doc._id) {
             doc._id = new mongoose.Types.ObjectId();
             console.log(`new Mongo ID added: ${doc._id}`);
         }
-        const mgDoc = new Content(deleteEmptyFields(doc)); //careful with this as will create new _ids if none exist already
+        // Use model as constructor
+        // careful with this as will create new _ids if none exist already
+        const mgDoc = new Content(deleteEmptyFields(doc)); 
         // run mongoose validators
         
         // const vErr = mgDoc.validateSync();
