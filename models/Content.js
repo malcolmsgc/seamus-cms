@@ -4,6 +4,31 @@ const Schema = mongoose.Schema;
 const validator = require('validator');
 const beautifyUnique = require('mongoose-beautiful-unique-validation');
 
+/** @property rules {array}
+     *  @constructs contentRulesSchema
+     *  stores information about rules, instructions and restrictions on content
+     * All values are optional in the model. Some defaults may be applied for specific data types. e.g. Images will be restricted on only one axis.
+     * IMPORTANT: Rules do not imply validation or enforcement. The 'rule' field will be displayed to user. Other values are intended for processing. 
+     * @todo add form validation based on rules
+     * @example {
+     * rule: "The hero image must be at least 600px wide. Larger images will be cropped to 800px width.",
+     *  max_value: 800,
+     *  max_unit: 'px',
+     *  min_unit: 'px',
+     *  max_apply_to: 'width',
+     *  min_apply_to: 'width
+     * }
+     */
+const contentRulesSchema = new Schema({
+        rule: String,
+        max_value: Number,
+        min_value: Number,
+        max_unit: String,
+        min_unit: String,
+        max_apply_to: String,
+        min_apply_to: String
+});
+
 const contentSchema = new Schema({
     page: {
         type: Schema.ObjectId,
@@ -26,7 +51,6 @@ const contentSchema = new Schema({
     */
     index: {
         type: Number,
-        unique: 'index {VALUE} is already in use. The index must be unique.',
         required: 'An index for a content section must be recorded'
     },
     /** @property {string} type
@@ -44,32 +68,21 @@ const contentSchema = new Schema({
         enum: [ 'image','text','html','md','ejs','pug','jsx','heading' ],
         required: 'You must supply your selection for the type of content'
     },
-    /** @property rules {object}
+    /** @property rules {array}
+     *  @extends contentRulesSchema
      *  stores information about rules, instructions and restrictions on content
      * All values are optional in the model. Some defaults may be applied for specific data types. e.g. Images will be restricted on only one axis.
-     * IMPORTANT: Rules do not imply validation or enforcement. The 'rule' field will be displayed to user. Other values are intended for processing. 
-     * @todo add form validation based on rules
-     * @example {
-     * rule: "The hero image must be at least 600px wide. Larger images will be cropped to 800px width.",
-     *  max_value: 800,
-     *  max_unit: 'px',
-     *  min_unit: 'px',
-     *  max_apply_to: 'width',
-     *  min_apply_to: 'width
-     * }
+     * IMPORTANT: Rules do not imply validation or enforcement. The 'rule' field will be displayed to user. Other values are intended for processing.
      */
-    rules: {
-        rule: String,
-        max_value: Number,
-        min_value: Number,
-        max_unit: String,
-        min_unit: String,
-        max_apply_to: String,
-        min_apply_to: String
-    },
+    rules: [contentRulesSchema],
+    /** @property css_selector
+     * intended to be available in some API calls for easy and possibly automated assignment of content to container nodes
+     * @todo add validation on front end to add warning to user presubmission and to allow duplicates in the DB instead of strictly preventing them
+     */
     css_selector: {
         type: String,
-        unique: true
+        trim: true
+        // unique: true
     },
     content: {
         type: String,

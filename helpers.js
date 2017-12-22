@@ -18,6 +18,7 @@ exports.icon = (name) => fs.readFileSync(`./public/images/icons/${name}.svg`);
 // Some details about the site
 exports.siteName = `Seamus CMS`;
 
+
 exports.menu = [
   { slug: '/', title: 'Console', icon: 'top', },
   { slug: '/top', title: '{sitename}', icon: 'top', },
@@ -26,6 +27,8 @@ exports.menu = [
   { slug: '/settings', title: 'Settings', icon: 'cog', },
 ];
 
+exports.emptyString = /^\s*$/;
+
 /** @function deleteEmptyFields
  *  @param {object} obj
  *  @returns new object similar to supplied param but altered so any properties that had a value of an empty string are removed. Original object is left unaltered
@@ -33,7 +36,7 @@ exports.menu = [
 exports.deleteEmptyFields = (obj) => {
   const newObj = {...obj};
   Object.keys(newObj).forEach( (key) => {
-    if (newObj[key] === '') delete newObj[key];
+    if (this.emptyString.test(newObj[key])) delete newObj[key];
   });
   return newObj;
 };

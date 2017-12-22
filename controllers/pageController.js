@@ -4,7 +4,7 @@ const Page = mongoose.model('Page');
 const Settings = mongoose.model('Setting');
 const Content = mongoose.model('Content');
 // const promisify = require('es6-promisify');
-const { deleteEmptyFields } = require('../helpers');
+const { deleteEmptyFields, emptyString } = require('../helpers');
 const settingsID = mongoose.Types.ObjectId(process.env.APP_SETTINGS_ID);
 
 /** @function saveSettings
@@ -75,6 +75,31 @@ exports.checkPageExists = async (req, res, next) => {
     }
 };
 
+// ADAPT FOR FORM
+exports.validateContentSchema = (req, res, next) => {
+    req.sanitizeBody('firstname');
+    req.checkBody('firstname', 'You must supply a first name').notEmpty();
+    req.sanitizeBody('lastname');
+    req.checkBody('lastname', 'You must supply a last name').notEmpty();
+    req.checkBody('email', 'That email is not valid').isEmail();
+    req.sanitizeBody('email').normalizeEmail({
+        remove_dots: false,
+        remove_extension: false,
+        gmail_remove_sunaddress: false
+    });
+    req.checkBody('password', 'Password cannot be blank').notEmpty();
+    req.checkBody('confirm-password', 'Confirm password cannot be blank').notEmpty();
+    req.checkBody('confirm-password', 'Passwords do not match').equals(req.body.password);
+
+    const errors = req.validationErrors();
+    if (errors) {
+        req.flash('error', errors.map(err => err.msg));
+        res.render('register', { title: 'Register', body: req.body, flashes: req.flash() });
+        return;
+    }
+    next();
+};
+
 /** @todo handle singleSectionSave
  *  Split function into different middleware
  * @todo ensure _id captured and brought through for each content section when updating
@@ -139,21 +164,71 @@ exports.savePageSchema = async (req, res, next) => {
     // iterate over contentSchema and turn into array of document objects
     // get keys of form object - checked every time in case of Model / form updates
     const formFields = Object.keys(contentSchema);
+    const validationErrors = [];
     const documents = contentSchema.index.reduce( (docs, schemaIndex, index ) => {
+        const rulesFieldRegex = /^(min)|^(max)|^(rule)/;
         const doc = {};
+        doc.page = req.params.pageId;
+        /** @todo LOW PRIORITY - extend how this handles rules to that multiple rules may be handled
+         * keeping it simplish to start with and hardcoding it to a single rule but should have a base structure to easily refactor to accomodate more whenever needed
+         */
+        const rules = [{}];
         formFields.forEach( (field) => {
-            doc[field] = contentSchema[field][index]
+            // move rules into embedded-object
+            if (rulesFieldRegex.test(field)) {
+                rules[0][field] = contentSchema[field][index];
+            }
+            else doc[field] = contentSchema[field][index]
         });
-        const mgDoc = new Content(doc); //careful with this as will create new _ids if none exist already
+        doc.rules = deleteEmptyFields(rules[0]);
+        // console.log(rules);
+        // check for existing ID. Create new id if none exists
+        // not really nec if using mongoose model as constructor but leaving check for id in case mongoose schema put aside for some reason. Basically, I'm doing a little foolproofing.
+        if (!doc._id) {
+            doc._id = new mongoose.Types.ObjectId();
+            console.log(`new Mongo ID added: ${doc._id}`);
+        }
+        const mgDoc = new Content(deleteEmptyFields(doc)); //careful with this as will create new _ids if none exist already
+        // run mongoose validators
+        
+        // const vErr = mgDoc.validateSync();
+        // validationErrors.push(vErr.errors);
+        
         docs.push(mgDoc);
         return docs;
     }, []);
-
+    if (validationErrors.length) {
+        validationErrors.forEach( (errObj) => {
+            console.error(errObj);
+        });
+        req.flash('error', 'Model validation failed');
+        res.redirect('back');
+        return;
+    }
+    // res.json(documents);
+    // return;
     //delete empty fields - not necessary if we can use Content model constructor
     // hand off request/s to DB
-    const bulk = await bulkSave(documents, Content, '_id');
-    res.send(bulk);
-    // res.redirect(`/`);
+    const bulkResponse = await bulkSave(documents, Content, '_id');
+    if (bulkResponse.writeErrors) {
+        console.error('Write error within pageController.savePageSchema using bulkSave function' + bulkResponse.writeErrors);
+        const err = new Error('Error saving. Please try again. If error persists please contact an administrator.');
+        err.status = 500;
+        next(err);
+
+    }
+    if (bulkResponse.writeConcernErrors) {
+        console.error('Write concern error within pageController.savePageSchema using bulkSave function' + bulkResponse.writeErrors);
+        const err = new Error('Error saving. Please try again. If error persists please contact an administrator.');
+        err.status = 500;
+        next(err);
+    }
+    else {
+        console.log(`MongoDB bulk execution response -- ok: ${bulkResponse.ok}`);
+        req.flash('success', 'Page content settings saved');
+        res.redirect(`/`);
+    }
+   return;
     //on success, redirect to page edit screen
 };
 
@@ -180,7 +255,7 @@ function bulkSave(documents, Model, match) {
             query[match] = document[match];
             bulk.find(query).upsert().updateOne(document);
         });
-        bulk.execute(function (err, bulkres) {
+        bulk.execute( (err, bulkres) => {
             if (err) return reject(err);
             resolve(bulkres);
         });
