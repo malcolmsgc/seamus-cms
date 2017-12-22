@@ -2,14 +2,6 @@ const mg = require('mongoose');
 const User = mg.model('User');
 const promisify = require('es6-promisify');
 
-exports.loginPage = (req, res) => {
-    res.render('login', {title: 'login'});
-};
-
-exports.registerPage = (req, res) => {
-    res.render('register', {title: 'register'});
-};
-
 // uses methods on expressValidator
 exports.validateRegister = (req, res, next) => {
     req.sanitizeBody('firstname');

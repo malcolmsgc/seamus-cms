@@ -3,13 +3,14 @@ extends layout
 block content
     .inner
         form.form(action="/register" method="POST")
+            //-pre= h.dump(body)
             h2 Register
             label(for="firstname") First name
-            input(type="text" name="firstname" required)
+            input(type="text" name="firstname" required value=(body && body.firstname))
             label(for="lastname") Last name
-            input(type="text" name="lastname" required)
+            input(type="text" name="lastname" required value=(body && body.lastname))
             label(for="email") Email
-            input(type="email" name="email" required)
+            input(type="email" name="email" required value=(body && body.email))
             label(for="password") Password
             input(type="password" name="password")
             label(for="confirm-password") Confirm Password

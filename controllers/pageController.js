@@ -200,8 +200,8 @@ exports.savePageSchema = async (req, res, next) => {
         const mgDoc = new Content(deleteEmptyFields(doc)); 
         // run mongoose validators
         
-        // const vErr = mgDoc.validateSync();
-        // validationErrors.push(vErr.errors);
+        const vErr = mgDoc.validateSync();
+        validationErrors.push(vErr);
         
         docs.push(mgDoc);
         return docs;
@@ -209,15 +209,14 @@ exports.savePageSchema = async (req, res, next) => {
     if (validationErrors.length) {
         validationErrors.forEach( (errObj) => {
             console.error(errObj);
+            req.flash('error', `Server response: ${errObj.message}`);
         });
-        req.flash('error', 'Model validation failed');
         res.redirect('back');
         return;
     }
+    // TEST IT'S WORKING -- Next 2 lines
     // res.json(documents);
     // return;
-    //delete empty fields - not necessary if we can use Content model constructor
-    // hand off request/s to DB
     const bulkResponse = await bulkSave(documents, Content, '_id');
     if (bulkResponse.writeErrors) {
         console.error('Write error within pageController.savePageSchema using bulkSave function' + bulkResponse.writeErrors);
