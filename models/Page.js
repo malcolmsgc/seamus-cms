@@ -8,7 +8,10 @@ const pageSchema = new Schema({
     title: {
         type: String,
         trim: true,
-        validate: [validator.isAscii, 'Only ASCII characters allowed in page title'],
+        validate: {
+            validator: validator.isAscii, 
+            message: 'Only ASCII characters allowed in page title'
+        },
         default: 'Untitled Page'
     },
     subtitle: {

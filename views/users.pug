@@ -4,3 +4,6 @@ block content
     .inner
         h2= title
         a(href="/register"): p Create new user
+        hr
+        each user in users
+            p #{user}

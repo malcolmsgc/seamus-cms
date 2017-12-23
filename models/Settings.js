@@ -46,7 +46,10 @@ const settingsSchema = new Schema({
         type: String,
         trim: true,
         required: 'A root path (usually the domain name) is required',
-        validate: [validator.isURL, 'Must be url that includes hostname']
+        validate: {
+            validator: validator.isURL,
+            message: 'Must be url that includes hostname'
+        }
     },
     extended_syntax: {
         type: contentTypesSchema,

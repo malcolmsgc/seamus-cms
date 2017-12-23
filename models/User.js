@@ -15,7 +15,10 @@ const userSchema = new Schema({
         unique: '{VALUE} has already been used.',
         lowercase: true,
         trim: true,
-        validate: [validator.isEmail, 'Invalid email address'],
+        validate: {
+            validator: validator.isEmail, 
+            message: 'Invalid email address'
+        },
         required: 'Please supply an email address'
     },
     firstname: {

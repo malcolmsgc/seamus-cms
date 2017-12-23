@@ -23,8 +23,8 @@ exports.settingsPage = async (req, res) => {
 };
 
 exports.usersPage = async (req, res) => {
-    // const users = await (User.find({ _id: settingsID })) || {};
-    res.render('users', { title: 'Users'});
+    const users = await (User.find({})) || {};
+    res.render('users', { title: 'Users', users });
 };
 
 /** @function addPage

@@ -18,8 +18,8 @@ exports.validateRegisterRules = [
         gmail_remove_sunaddress: false
     }),
     /** @todo add custom validation rules on the password field  */
-    body('password', 'Password cannot be blank').isLength({min: 1}),
-    body('confirm-password', 'Confirm password cannot be blank').isLength({min: 1}),
+    body('password', 'Password must contain at least 3 characters').isLength({min: 3}),
+    body('confirm-password', 'Confirm password must contain at least 3 characters').isLength({min: 3}),
     body('confirm-password', 'Passwords do not match').custom((value, { req }) => value === req.body.password)
 ];
 

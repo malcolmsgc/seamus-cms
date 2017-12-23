@@ -40,7 +40,10 @@ const contentSchema = new Schema({
         type: String,
         required: true,
         trim: true,
-        validate: [validator.isAscii, 'Only ASCII characters allowed in title'],
+        validate: {
+            validator: validator.isAscii,
+            message: 'Only ASCII characters allowed in title'
+        },
         maxLength: [30, 'The value of `{PATH}` (`{VALUE}`) exceeds the maximum allowed length ({MAXLENGTH}).']
     },
     /** 

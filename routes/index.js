@@ -22,7 +22,7 @@ router.get('/login', navController.loginPage );
 router.get('/logout', authController.logout );
 router.get('/register', navController.registerPage );
 router.get('/settings', navController.settingsPage );
-router.get('/users', navController.usersPage );
+router.get('/users', catchErrors(navController.usersPage) );
 router.get('/addpage/(:step)?', catchErrors(pageController.checkPageExists), navController.addPage );
 // router.get('/page/:page/edit/:step', navController.editPage );
 
