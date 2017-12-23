@@ -29,6 +29,7 @@ router.get('/addpage/(:step)?', catchErrors(pageController.checkPageExists), nav
 // FORM SUBMISSIONS
     // USER AUTH
 router.post('/register',
+    userController.validateRegisterRules,
     userController.validateRegister,
     catchErrors(userController.appendRole),
     userController.register,

@@ -1,29 +1,39 @@
 const mg = require('mongoose');
 const User = mg.model('User');
 const promisify = require('es6-promisify');
+const { check, body, validationResult } = require('express-validator/check');
+const { matchedData, sanitizeBody } = require('express-validator/filter');
+
 
 // uses methods on expressValidator
-exports.validateRegister = (req, res, next) => {
-    req.sanitizeBody('firstname');
-    req.checkBody('firstname', 'You must supply a first name').notEmpty();
-    req.sanitizeBody('lastname');
-    req.checkBody('lastname', 'You must supply a last name').notEmpty();
-    req.checkBody('email', 'That email is not valid').isEmail();
-    req.sanitizeBody('email').normalizeEmail({
+exports.validateRegisterRules = [
+    sanitizeBody('firstname').escape(), //escape replaces <, >, &, ', " and / with HTML entities.
+    body('firstname', 'You must supply a first name').isLength({min: 1}),
+    sanitizeBody('lastname').escape(),
+    body('lastname', 'You must supply a last name').isLength({min: 1}),
+    body('email', 'That email is not valid').isEmail(),
+    sanitizeBody('email').normalizeEmail({
         remove_dots: false,
         remove_extension: false,
         gmail_remove_sunaddress: false
-    });
-    req.checkBody('password', 'Password cannot be blank').notEmpty();
-    req.checkBody('confirm-password', 'Confirm password cannot be blank').notEmpty();
-    req.checkBody('confirm-password', 'Passwords do not match').equals(req.body.password);
+    }),
+    /** @todo add custom validation rules on the password field  */
+    body('password', 'Password cannot be blank').isLength({min: 1}),
+    body('confirm-password', 'Confirm password cannot be blank').isLength({min: 1}),
+    body('confirm-password', 'Passwords do not match').custom((value, { req }) => value === req.body.password)
+];
 
-    const errors = req.validationErrors();
-    if (errors) {
-        req.flash('error', errors.map(err => err.msg));
+exports.validateRegister = (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        req.flash('error', errors.array()
+            .map(err => err.msg));
         res.render('register', { title: 'Register', body: req.body, flashes: req.flash() });
         return;
     }
+    // get sanitized and validated data and replace data on req.body with it. Done in two steps for clarity.
+    const sanitized = matchedData(req, {body});
+    req.body = sanitized;
     next();
 };
 
