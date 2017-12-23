@@ -8,9 +8,9 @@ block content
             if user
                 label(for="role") Role
                 select(name="role" required)
-                    option(disabled selected value="") Choose user role
-                    option(value="administrator") Administrator
-                    option(value="editor") Editor
+                    option(disabled selected=`${!body}` value="") Choose user role
+                    option(value="administrator" selected=`${body && (body.role === "administrator")}`) Administrator
+                    option(value="editor" selected=`${body && (body.role === "editor")}`) Editor
             label(for="firstname") First name
             input(type="text" name="firstname" required value=(body && body.firstname))
             label(for="lastname") Last name

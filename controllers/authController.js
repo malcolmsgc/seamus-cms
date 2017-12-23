@@ -30,7 +30,7 @@ exports.login = passport.authenticate('local', {
 exports.logout = (req, res) => {
     req.logout();
     req.flash('success', 'You have been logged out');
-    res.redirect('/');
+    res.redirect('/login');
 };
 
 exports.authCheck = (req, res, next) => {
@@ -61,7 +61,7 @@ exports.permissionsCheck = (req, res, next) => {
     else {
         throw new Error('User has no role set. Please contact an administrator to set a role');
         req.flash('error', 'User has no role set. Please contact an administrator to set a role');
-        res.redirect('back');
+        res.redirect('/');
         return;
     }
 };
