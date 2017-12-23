@@ -4,7 +4,13 @@ block content
     .inner
         form.form(action="/register" method="POST")
             //-pre= h.dump(body)
-            h2 Register
+            h2= title
+            if user
+                label(for="role") Role
+                select(name="role" required)
+                    option(disabled selected value="") Choose user role
+                    option(value="administrator") Administrator
+                    option(value="editor") Editor
             label(for="firstname") First name
             input(type="text" name="firstname" required value=(body && body.firstname))
             label(for="lastname") Last name

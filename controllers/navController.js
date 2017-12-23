@@ -10,7 +10,8 @@ exports.loginPage = (req, res) => {
 };
 
 exports.registerPage = (req, res) => {
-    res.render('register', {title: 'register'});
+    const title = req.user ? 'Add new user' : 'Register';
+    res.render('register', { title });
 };
 
 exports.mainPage = (req, res) => {
