@@ -54,6 +54,7 @@ const contentSchema = new Schema({
     */
     index: {
         type: Number,
+        min: 0,
         required: 'An index for a content section must be recorded'
     },
     /** @property {string} type

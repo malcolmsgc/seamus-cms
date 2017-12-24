@@ -3,6 +3,8 @@ const mgIdIsValid = mongoose.Types.ObjectId.isValid;
 const Page = mongoose.model('Page');
 const Settings = mongoose.model('Setting');
 const Content = mongoose.model('Content');
+const { check, body, validationResult } = require('express-validator/check');
+const { matchedData, sanitizeBody } = require('express-validator/filter');
 // const promisify = require('es6-promisify');
 const { deleteEmptyFields, emptyString } = require('../helpers');
 const settingsID = mongoose.Types.ObjectId(process.env.APP_SETTINGS_ID);
@@ -75,53 +77,58 @@ exports.checkPageExists = async (req, res, next) => {
     }
 };
 
-// ADAPT FOR FORM
-exports.validateContentSchema = (req, res, next) => {
-    req.sanitizeBody('firstname');
-    req.checkBody('firstname', 'You must supply a first name').notEmpty();
-    req.sanitizeBody('lastname');
-    req.checkBody('lastname', 'You must supply a last name').notEmpty();
-    req.checkBody('email', 'That email is not valid').isEmail();
-    req.sanitizeBody('email').normalizeEmail({
-        remove_dots: false,
-        remove_extension: false,
-        gmail_remove_sunaddress: false
-    });
-    req.checkBody('password', 'Password cannot be blank').notEmpty();
-    req.checkBody('confirm-password', 'Confirm password cannot be blank').notEmpty();
-    req.checkBody('confirm-password', 'Passwords do not match').equals(req.body.password);
 
-    const errors = req.validationErrors();
-    if (errors) {
-        req.flash('error', errors.map(err => err.msg));
-        res.render('register', { title: 'Register', body: req.body, flashes: req.flash() });
-        return;
-    }
-    next();
-};
-
-/** @todo handle singleSectionSave
- *  Split function into different middleware
- * @todo ensure _id captured and brought through for each content section when updating
- */
-exports.savePageSchemaPrep = (req, res, next) => {
-    //if ID invalid throw error and return
-    if (!mgIdIsValid(req.params.pageId)) {
-        const err = new Error('Page ID is invalid');
-        err.status = 400;
-        next(err);
-        return;
-    }
+exports.pageSchemaSaveSwitch = (req, res, next) => {
     const indexVal = req.body.index;
     //check if single content section submitted. Check for string should suffice but added number in case some browser does some weird parsing.
     req.singleSectionSave = (typeof indexVal === "string" || typeof indexVal === "number");
-    // console.log({singleSectionSave});
-    // req.singleSectionSave = singleSectionSave;
     next();
 }
 
+const abstractContentRules = (reqData = {}, pageId, loopIndex = null) => {
+    const contentSchema = {...reqData};
+    const formFields = Object.keys(contentSchema);
+    const rulesFieldRegex = /^(min)|^(max)|^(rule)/;
+    const doc = {
+        rules: []
+    };
+    doc.page = pageId;
+    /** @todo LOW PRIORITY - extend how this handles rules to that multiple rules may be handled
+     * keeping it simplish to start with and hardcoding it to a single rule but should have a base structure to easily refactor to accomodate more whenever needed
+     */
+    let ruleset = {};
+    formFields.forEach( (field) => {
+        // move rules into embedded-object
+            //different loop for single vs mulitp section
+            // first deal with multi, i.e. has loopIndex
+        if (loopIndex) {
+            if (rulesFieldRegex.test(field))
+                ruleset[field] = contentSchema[field][loopIndex];
+            else doc[field] = contentSchema[field][loopIndex];
+        }
+        // else deal with single section
+        else {
+            if (rulesFieldRegex.test(field))
+                ruleset[field] = contentSchema[field];
+            else doc[field] = contentSchema[field];
+        }
+});
+    ruleset = deleteEmptyFields(ruleset);
+    // if no rules delete the key on the doc
+    if ( !Object.keys(ruleset).length ) delete doc.rules;
+    else {
+        // add rules to array
+        doc.rules.push(ruleset);
+    }
+    return doc;
+}
+
+/** 
+ * @todo Split function into different middleware
+ */
 exports.savePageSchema = async (req, res, next) => {
     // If only one content section to save pass to next function: SavePageSchemaSingle
+    // This is because multi-section save uses array methods that fail on a Number
     // SavePageSchemaSingle performs a single operation DB query whereas savePageSchema performs a bulk one
     if (req.singleSectionSave) {
         next()
@@ -164,7 +171,7 @@ exports.savePageSchema = async (req, res, next) => {
     // iterate over contentSchema and turn into array of document objects
     // get keys of form object - checked every time in case of Model / form updates
     const formFields = Object.keys(contentSchema);
-    const validationErrors = [];
+    const mgValidationErrors = [];
     const documents = contentSchema.index.reduce( (docs, schemaIndex, index ) => {
         const rulesFieldRegex = /^(min)|^(max)|^(rule)/;
         const doc = {
@@ -201,13 +208,13 @@ exports.savePageSchema = async (req, res, next) => {
         // run mongoose validators
         
         const vErr = mgDoc.validateSync();
-        validationErrors.push(vErr);
+        mgValidationErrors.push(vErr);
         
         docs.push(mgDoc);
         return docs;
     }, []);
-    if (validationErrors.length) {
-        validationErrors.forEach( (errObj) => {
+    if (mgValidationErrors.length) {
+        mgValidationErrors.forEach( (errObj) => {
             console.error(errObj);
             req.flash('error', `Server response: ${errObj.message}`);
         });
@@ -232,16 +239,27 @@ exports.savePageSchema = async (req, res, next) => {
         next(err);
     }
     else {
+        //on success, redirect to page edit screen
         console.log(`MongoDB bulk execution response -- ok: ${bulkResponse.ok}`);
-        req.flash('success', 'Page content settings saved');
+        req.flash('success', `Page content settings saved`);
         res.redirect(`/`);
     }
    return;
-    //on success, redirect to page edit screen
 };
 
 exports.savePageSchemaSingle = async (req, res, next) => {
-    res.json(req.body);
+    const contentSchema = {...req.body};
+    // assign content section index
+    contentSchema.index = parseInt(contentSchema.index) || 0;
+    let doc = abstractContentRules(contentSchema, req.params.pageId);
+    if (!doc._id) {
+        doc._id = new mongoose.Types.ObjectId();
+        console.log(`new Mongo ID added: ${doc._id}`);
+    }
+    doc = deleteEmptyFields(doc);
+    const result = await Content.findOneAndUpdate({_id: doc._id}, doc, {upsert: true, new: true, runValidators: true}).exec();
+    req.flash('success', `Page content settings saved`);
+    res.redirect('/');
 }
 
 
@@ -253,7 +271,7 @@ exports.savePageSchemaSingle = async (req, res, next) => {
  * @param  {Object}   match    Database field to match
  * @return {Promise}  always resolves a BulkWriteResult
  */
-// Adapted from answer given by konsumer on SO (https://stackoverflow.com/questions/25285232/bulk-upsert-in-mongodb-using-mongoose)
+// Adapted from answer given by konsumer on S.O. (https://stackoverflow.com/questions/25285232/bulk-upsert-in-mongodb-using-mongoose)
 function bulkSave(documents, Model, match) {
     match = match || '_id';
     return new Promise((resolve, reject) => {

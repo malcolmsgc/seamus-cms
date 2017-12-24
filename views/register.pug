@@ -10,7 +10,7 @@ block content
                 select(name="role" required)
                     - const adminSelected = body && body.role === "administrator"
                     - const editorSelected = body && body.role === "editor"
-                    option(disabled selected=!body value="") Choose user role
+                    option(disabled selected=!body value="") Choose a role
                     option(value="administrator" selected=adminSelected) Administrator
                     option(value="editor" selected=editorSelected) Editor
             label(for="firstname") First name
