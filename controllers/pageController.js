@@ -101,8 +101,8 @@ const abstractContentRules = (reqData = {}, pageId, loopIndex = null) => {
         // move rules into embedded-object
             //different loop for single vs mulitp section
             // first deal with multi, i.e. has loopIndex
-        if (loopIndex) {
-            if (rulesFieldRegex.test(field))
+        if (typeof loopIndex === 'number') {
+            if (rulesFieldRegex.test(field)) 
                 ruleset[field] = contentSchema[field][loopIndex];
             else doc[field] = contentSchema[field][loopIndex];
         }
@@ -173,29 +173,8 @@ exports.savePageSchema = async (req, res, next) => {
     const formFields = Object.keys(contentSchema);
     const mgValidationErrors = [];
     const documents = contentSchema.index.reduce( (docs, schemaIndex, index ) => {
-        const rulesFieldRegex = /^(min)|^(max)|^(rule)/;
-        const doc = {
-            rules: []
-        };
-        doc.page = req.params.pageId;
-        /** @todo LOW PRIORITY - extend how this handles rules to that multiple rules may be handled
-         * keeping it simplish to start with and hardcoding it to a single rule but should have a base structure to easily refactor to accomodate more whenever needed
-         */
-        let ruleset = {};
-        formFields.forEach( (field) => {
-            // move rules into embedded-object
-            if (rulesFieldRegex.test(field)) {
-                ruleset[field] = contentSchema[field][index];
-            }
-            else doc[field] = contentSchema[field][index]
-        });
-        ruleset = deleteEmptyFields(ruleset);
-        // if no rules delete the key on the doc
-        if ( !Object.keys(ruleset).length ) delete doc.rules;
-        else {
-            // add rules to array
-            doc.rules.push(ruleset);
-        }
+    const rulesFieldRegex = /^(min)|^(max)|^(rule)/;
+    const doc = abstractContentRules(contentSchema, req.params.pageId, index);
         // check for existing ID. Create new id if none exists
         // not really nec if using mongoose model as constructor but leaving check for id in case mongoose schema put aside for some reason. Basically, I'm doing a little foolproofing.
         if (!doc._id) {
@@ -206,19 +185,27 @@ exports.savePageSchema = async (req, res, next) => {
         // careful with this as will create new _ids if none exist already
         const mgDoc = new Content(deleteEmptyFields(doc)); 
         // run mongoose validators
-        
-        const vErr = mgDoc.validateSync();
-        mgValidationErrors.push(vErr);
-        
+        console.log(mgDoc);
+        // const vErr = mgDoc.validateSync();
+        // console.log(vErr);
+        // mgValidationErrors.push(vErr);
+        // add to reduce's accumulator array
         docs.push(mgDoc);
         return docs;
     }, []);
     if (mgValidationErrors.length) {
         mgValidationErrors.forEach( (errObj) => {
-            console.error(errObj);
-            req.flash('error', `Server response: ${errObj.message}`);
+            if (errObj) {
+                console.error("--ERROR--");
+                console.error(errObj);
+                req.flash('error', `Server response: ${errObj.message}`);   
+            }
+            else {
+                console.error('Save failed. Validation error (Mongoose err)');
+                req.flash('error', `Save failed. Server-side validation error.`);
+            }
         });
-        res.redirect('back');
+            res.redirect('back');
         return;
     }
     // TEST IT'S WORKING -- Next 2 lines

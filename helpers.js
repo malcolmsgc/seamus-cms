@@ -21,7 +21,7 @@ exports.siteName = `Seamus CMS`;
 
 exports.menu = [
   { slug: '/', title: 'Console', icon: 'top', },
-  { slug: '/top', title: '{sitename}', icon: 'top', },
+  { slug: '/', title: '{sitename}', icon: 'top', },
   { slug: '/settings', title: 'Settings', icon: 'cog', },
   { slug: '/users', title: 'Users', icon: 'tag', },
   { slug: '/addpage/', title: 'Add Page', icon: 'add', },
