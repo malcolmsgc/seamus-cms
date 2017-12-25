@@ -185,25 +185,18 @@ exports.savePageSchema = async (req, res, next) => {
         // careful with this as will create new _ids if none exist already
         const mgDoc = new Content(deleteEmptyFields(doc)); 
         // run mongoose validators
-        console.log(mgDoc);
-        // const vErr = mgDoc.validateSync();
-        // console.log(vErr);
-        // mgValidationErrors.push(vErr);
+        const vErr = mgDoc.validateSync();
+        // push into validation errors array if error returned
+        if (vErr) mgValidationErrors.push(vErr);
         // add to reduce's accumulator array
         docs.push(mgDoc);
         return docs;
     }, []);
     if (mgValidationErrors.length) {
         mgValidationErrors.forEach( (errObj) => {
-            if (errObj) {
-                console.error("--ERROR--");
-                console.error(errObj);
-                req.flash('error', `Server response: ${errObj.message}`);   
-            }
-            else {
-                console.error('Save failed. Validation error (Mongoose err)');
-                req.flash('error', `Save failed. Server-side validation error.`);
-            }
+            console.error("--ERROR--");
+            console.error(errObj);
+            req.flash('error', `Server response: ${errObj.message}`);   
         });
             res.redirect('back');
         return;
