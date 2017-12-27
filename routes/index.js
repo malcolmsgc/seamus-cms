@@ -24,8 +24,9 @@ router.get('/logout', authController.logout );
 router.get('/register', navController.registerPage );
 router.get('/settings', navController.settingsPage );
 router.get('/users', catchErrors(navController.usersPage) );
+router.get('/page/:pageId', catchErrors(pageController.fetchPage) );
 router.get('/addpage/?(:step)?', catchErrors(pageController.checkPageExists), navController.addPage );
-// router.get('/page/:page/edit/:step', navController.editPage );
+// router.get('/editpage/:page/:step', navController.editPage );
 
 // FORM SUBMISSIONS
     // USER AUTH

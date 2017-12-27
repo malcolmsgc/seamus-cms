@@ -15,19 +15,19 @@ const settingsID = mongoose.Types.ObjectId(process.env.APP_SETTINGS_ID);
  * @param {Object} res
  * @param {Function} next
  * @summary Loads console and page summaries
- * Fetches pages from DB and sends page info to view, which is then rendered
+ * Fetches pages from DB and sends page info to console view, which is then rendered
  */
 exports.fetchPages = async (req, res, next) => {
     console.log('fetching existing pages');
     // const paginationPage = req.params.page || 1;
     // const limit = 6;
     // const skip = (paginationPage * limit) - limit;
-    const storesPromise = Page.find({});
+    const pagesPromise = Page.find({});
         // .skip(skip)
         // .limit(limit)
         // .sort({ name: 1 });
     const countPromise = Page.count();
-    const [pages, count] = await Promise.all([storesPromise, countPromise]);
+    const [pages, count] = await Promise.all([pagesPromise, countPromise]);
     // const numPages = Math.ceil(count / limit); //for console pagination, not number of pages to content manage
     // if (!pages.length && skip) {
     //     req.flash('info', `You asked for page ${page} but it doesn't exist. You have been taken to the last page.`);
@@ -35,6 +35,20 @@ exports.fetchPages = async (req, res, next) => {
     //     return;
     // }
     res.render('console', { title: "Console", pages, count });
+    return;
+}
+
+
+/** @function fetchPages
+ * @param {Object} req
+ * @param {Object} res
+ * @param {Function} next
+ * @summary Loads page content into view user can use to edit content
+ * Fetches page from DB and sends page info to 'edit' view, which is then rendered
+ */
+exports.fetchPage = async (req, res, next) => {
+    const page = await Page.findOne({_id: req.params.pageId}).exec();
+    res.render('contentManagePage', { title: "Edit page content", page });
     return;
 }
 

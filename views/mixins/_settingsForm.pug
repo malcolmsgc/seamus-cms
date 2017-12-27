@@ -1,30 +1,31 @@
 mixin settingsForm(s = {})
-    form.form(action="/settings" method="POST")
-        h2 Create page
-        label(for="sitename") Site name
-        input(type="text" name='sitename' placeholder="Untitled website" value=(s.sitename)) 
-        label(for="root_path") Domain Name / Root path
-        input(type="text" name='root_path' value=(s.root_path))
-        fieldset
-            legend Allow the following types of syntax
-            - const support = s.extended_syntax
-            input(type="checkbox" name='markdown' value="true" checked=(support && support.markdown))
-            label(for="markdown") Markdown 
-            input(type="checkbox" name='html' value="true" checked=(support && support.html))
-            label(for="html") HTML 
-            input(type="checkbox" name='json' value="true" checked=(support && support.html))
-            label(for="json") JSON 
-            input(type="checkbox" name='pug' value="true" checked=(support && support.pug))
-            label(for="pug") pug 
-            input(type="checkbox" name='jsx' value="true" checked=(support && support.jsx))
-            label(for="jsx") jsx 
-            input(type="checkbox" name='ejs' value="true" checked=(support && support.ejs))
-            label(for="ejs") ejs
-        input(type="radio" id='multi' name='multipage' value='true' checked=(s.multipage)) 
-        label(for='multi') Multipage site
-        input(type="radio" id='single' name='multipage' value='false' checked=(!s.multipage))
-        label(for='single') Single page site
-        input.button(type="submit" value="Save")
+    .inner
+        form.form(action="/settings" method="POST")
+            h2= title
+            label(for="sitename") Site name
+            input(type="text" name='sitename' placeholder="Untitled website" value=(s.sitename)) 
+            label(for="root_path") Domain Name / Root path
+            input(type="text" name='root_path' value=(s.root_path))
+            fieldset
+                legend Allow the following types of syntax
+                - const support = s.extended_syntax
+                input(type="checkbox" name='markdown' value="true" checked=(support && support.markdown))
+                label(for="markdown") Markdown 
+                input(type="checkbox" name='html' value="true" checked=(support && support.html))
+                label(for="html") HTML 
+                input(type="checkbox" name='json' value="true" checked=(support && support.html))
+                label(for="json") JSON 
+                input(type="checkbox" name='pug' value="true" checked=(support && support.pug))
+                label(for="pug") pug 
+                input(type="checkbox" name='jsx' value="true" checked=(support && support.jsx))
+                label(for="jsx") jsx 
+                input(type="checkbox" name='ejs' value="true" checked=(support && support.ejs))
+                label(for="ejs") ejs
+            input(type="radio" id='multi' name='multipage' value='true' checked=(s.multipage)) 
+            label(for='multi') Multipage site
+            input(type="radio" id='single' name='multipage' value='false' checked=(!s.multipage))
+            label(for='single') Single page site
+            input.button(type="submit" value="Save")
 
         
           
