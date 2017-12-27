@@ -9,6 +9,36 @@ const { matchedData, sanitizeBody } = require('express-validator/filter');
 const { deleteEmptyFields, emptyString } = require('../helpers');
 const settingsID = mongoose.Types.ObjectId(process.env.APP_SETTINGS_ID);
 
+
+/** @function fetchPages
+ * @param {Object} req
+ * @param {Object} res
+ * @param {Function} next
+ * @summary Loads console and page summaries
+ * Fetches pages from DB and sends page info to view, which is then rendered
+ */
+exports.fetchPages = async (req, res, next) => {
+    console.log('fetching existing pages');
+    // const paginationPage = req.params.page || 1;
+    // const limit = 6;
+    // const skip = (paginationPage * limit) - limit;
+    const storesPromise = Page.find({});
+        // .skip(skip)
+        // .limit(limit)
+        // .sort({ name: 1 });
+    const countPromise = Page.count();
+    const [pages, count] = await Promise.all([storesPromise, countPromise]);
+    // const numPages = Math.ceil(count / limit); //for console pagination, not number of pages to content manage
+    // if (!pages.length && skip) {
+    //     req.flash('info', `You asked for page ${page} but it doesn't exist. You have been taken to the last page.`);
+    //     res.redirect(`/stores/page/${numPages}`);
+    //     return;
+    // }
+    res.render('console', { title: "Console", pages, count });
+    return;
+}
+
+
 /** @function saveSettings
  * @param {Object} req
  * @param {Object} res
@@ -123,9 +153,6 @@ const abstractContentRules = (reqData = {}, pageId, loopIndex = null) => {
     return doc;
 }
 
-/** 
- * @todo Split function into different middleware
- */
 exports.savePageSchema = async (req, res, next) => {
     // If only one content section to save pass to next function: SavePageSchemaSingle
     // This is because multi-section save uses array methods that fail on a Number
@@ -267,3 +294,4 @@ function bulkSave(documents, Model, match) {
         });
     });
 }
+

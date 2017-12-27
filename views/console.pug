@@ -1,11 +1,20 @@
 extends layout
 
 include mixins/_header
+include mixins/_pageCard
 
 block header
     +header(user)
 
 block content
-    h2= title
-    p= user
-    p this is where user will edit content
+    .inner
+        p= user
+        h2= title
+        - const noPages = pages.length === 0
+        ul
+            if noPages
+                p There are no pages to edit.
+                a(href="/addpage"): p Add a page to start
+            each page in pages
+                li
+                    +pageCard(page)

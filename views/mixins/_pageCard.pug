@@ -1,0 +1,9 @@
+mixin pageCard(page)
+    - const snippet = "Snippet"
+    - const dateToShow = page.last_published || page.first_published || page.created
+    a(href=`/page/${page._id}`)
+        .page-summary
+            p= page.title
+            p= page.subtitle || "subtitle"
+            p path: #{page.rel_path}
+            p last edited on #{dateToShow}
