@@ -1,15 +1,19 @@
-mixin pageMetaForm(page = {})
-    form.form(action="/meta" method="POST")
-        h2 Create page
+mixin pageMetaForm(page = {}, formAction = 'add')
+    form.form(action=`/meta/${formAction}` method="POST")
+        if formAction === 'add'
+            h2 Create page
+        else
+            h2= title
         label(for="title") Page title
-        input(type="text" name='title' placeholder="Untitled page") 
+        input(type="text" name='title' placeholder="Untitled page" value=page.title) 
         label(for="subtitle") Page subtitle or description
-        input(type="text" name='subtitle')
+        input(type="text" name='subtitle' value=page.subtitle)
         label(for="index") Page index
         p This will be used to sequence pages if ordering by name or date is insufficient
-        input(type="number" name='index' placeholder="0") 
+        input(type="number" name='index' placeholder="0" value=page.index) 
         label(for="rel_path") Relative path of page to be managed
             span.--required (req)
         - const pathValue = page.rel_path ? page.rel_path : "/"
         input(type="text" name='rel_path' placeholder="/here/there" value=pathValue required)
-        input.button(type="submit" value="Next")
+        - const btnText = formAction === 'add' ? "Next" : "Save"
+        input.button(type="submit" value=btnText)

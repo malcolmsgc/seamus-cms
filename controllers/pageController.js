@@ -27,8 +27,8 @@ exports.fetchPages = async (req, res, next) => {
     // const skip = (paginationPage * limit) - limit;
     const pagesPromise = Page.find({})
         .sort({ [sortBy]: [sortAsc] });
-        // .skip(skip)
-        // .limit(limit)
+    // .skip(skip)
+    // .limit(limit)
     const countPromise = Page.count();
     const [pages, count] = await Promise.all([pagesPromise, countPromise]);
     // const numPages = Math.ceil(count / limit); //for console pagination, not number of pages to content manage
@@ -50,7 +50,7 @@ exports.fetchPages = async (req, res, next) => {
  * Fetches page from DB and sends page info to 'edit' view, which is then rendered
  */
 exports.fetchPage = async (req, res, next) => {
-    const page =  await Page.findOne({_id: req.params.pageId})
+    const page = await Page.findOne({ _id: req.params.pageId })
         .populate({
             path: 'content',
             options: { sort: { index: 1 } }
@@ -92,13 +92,25 @@ exports.saveSettings = async (req, res) => {
     }
 };
 
-/** @todo either a separate function or an adaption to this one to allow editing. Will need page ID */
 exports.saveNewPageMeta = async (req, res) => {
     const pageMeta = deleteEmptyFields(req.body);
     const page = await (new Page(pageMeta)).save();
     req.flash('success', `Page created for ${page.title}`);
     res.redirect(`/addpage/2?pid=${page._id}`);
-    // res.json({...page, ...req.body, ...res.locals});
+};
+
+exports.savePageMeta = async (req, res) => {
+    req.body._id = req.params.pageId;
+    const pageMeta = new Page(deleteEmptyFields(req.body));
+    const page = await Page.findOneAndUpdate(
+        // query
+        { _id: req.params.pageId },
+        // new doc
+        pageMeta,
+        // options
+        { runValidators: true, new: true });
+    req.flash('success', `Page details for '${page.title}' updated`);
+    res.redirect(`/page/${req.params.pageId}`);
 };
 
 
@@ -138,7 +150,7 @@ exports.pageSchemaSaveSwitch = (req, res, next) => {
 }
 
 const abstractContentRules = (reqData = {}, pageId, loopIndex = null) => {
-    const contentSchema = {...reqData};
+    const contentSchema = { ...reqData };
     const formFields = Object.keys(contentSchema);
     const rulesFieldRegex = /^(min)|^(max)|^(rule)/;
     const doc = {
@@ -149,12 +161,12 @@ const abstractContentRules = (reqData = {}, pageId, loopIndex = null) => {
      * keeping it simplish to start with and hardcoding it to a single rule but should have a base structure to easily refactor to accomodate more whenever needed
      */
     let ruleset = {};
-    formFields.forEach( (field) => {
+    formFields.forEach((field) => {
         // move rules into embedded-object
-            //different loop for single vs mulitp section
-            // first deal with multi, i.e. has loopIndex
+        //different loop for single vs mulitp section
+        // first deal with multi, i.e. has loopIndex
         if (typeof loopIndex === 'number') {
-            if (rulesFieldRegex.test(field)) 
+            if (rulesFieldRegex.test(field))
                 ruleset[field] = contentSchema[field][loopIndex];
             else doc[field] = contentSchema[field][loopIndex];
         }
@@ -164,10 +176,10 @@ const abstractContentRules = (reqData = {}, pageId, loopIndex = null) => {
                 ruleset[field] = contentSchema[field];
             else doc[field] = contentSchema[field];
         }
-});
+    });
     ruleset = deleteEmptyFields(ruleset);
     // if no rules delete the key on the doc
-    if ( !Object.keys(ruleset).length ) delete doc.rules;
+    if (!Object.keys(ruleset).length) delete doc.rules;
     else {
         // add rules to array
         doc.rules.push(ruleset);
@@ -185,28 +197,28 @@ exports.savePageSchema = async (req, res, next) => {
     }
     // Continue with multi document handling
     // take copy of submitted form
-    const contentSchema = {...req.body};
+    const contentSchema = { ...req.body };
     //check if any indexes. Indexes required by Model. If not assigned by user these need to be programatically assigned.
     const { index: indexes } = contentSchema;
     // sort ascending and take first (lowest) and last (highest) value
-    const indexesSorted = indexes.sort((a, b) => a > b );
-    const lowestIndex = parseInt( indexesSorted[0] );
-    let highestIndex = parseInt( indexesSorted[indexesSorted.length - 1] );
+    const indexesSorted = indexes.sort((a, b) => a > b);
+    const lowestIndex = parseInt(indexesSorted[0]);
+    let highestIndex = parseInt(indexesSorted[indexesSorted.length - 1]);
     // if no indexes lowest index should be falsy (NaN or null) after parseInt
     if (!lowestIndex) {
         // if both lowest and highest values are falsy it means no indexes were given
         if (!highestIndex) {
             console.log('no indexes supplied');
             //transform sorted array's values to be the array index
-            contentSchema.index = indexes.map( (item, index) => index );
+            contentSchema.index = indexes.map((item, index) => index);
         }
         // if no lowest value but highest value exists then some but not all indexes given
         else {
             console.log('some indexes supplied. Some are absent');
             // keep existing indexes. Where no int supplied as index add an index by incrementing the previous highestIndex
-            contentSchema.index = indexes.map( (item, index) => {
+            contentSchema.index = indexes.map((item, index) => {
                 const parsed = parseInt(item);
-                if (parsed) 
+                if (parsed)
                     return parsed;
                 else
                     return ++highestIndex;
@@ -221,9 +233,9 @@ exports.savePageSchema = async (req, res, next) => {
     // get keys of form object - checked every time in case of Model / form updates
     const formFields = Object.keys(contentSchema);
     const mgValidationErrors = [];
-    const documents = contentSchema.index.reduce( (docs, schemaIndex, index ) => {
-    const rulesFieldRegex = /^(min)|^(max)|^(rule)/;
-    const doc = abstractContentRules(contentSchema, req.params.pageId, index);
+    const documents = contentSchema.index.reduce((docs, schemaIndex, index) => {
+        const rulesFieldRegex = /^(min)|^(max)|^(rule)/;
+        const doc = abstractContentRules(contentSchema, req.params.pageId, index);
         // check for existing ID. Create new id if none exists
         // not really nec if using mongoose model as constructor but leaving check for id in case mongoose schema put aside for some reason. Basically, I'm doing a little foolproofing.
         if (!doc._id) {
@@ -232,7 +244,7 @@ exports.savePageSchema = async (req, res, next) => {
         }
         // Use model as constructor
         // careful with this as will create new _ids if none exist already
-        const mgDoc = new Content(deleteEmptyFields(doc)); 
+        const mgDoc = new Content(deleteEmptyFields(doc));
         // run mongoose validators
         const vErr = mgDoc.validateSync();
         // push into validation errors array if error returned
@@ -242,12 +254,12 @@ exports.savePageSchema = async (req, res, next) => {
         return docs;
     }, []);
     if (mgValidationErrors.length) {
-        mgValidationErrors.forEach( (errObj) => {
+        mgValidationErrors.forEach((errObj) => {
             console.error("--ERROR--");
             console.error(errObj);
-            req.flash('error', `Server response: ${errObj.message}`);   
+            req.flash('error', `Server response: ${errObj.message}`);
         });
-            res.redirect('back');
+        res.redirect('back');
         return;
     }
     // TEST IT'S WORKING -- Next 2 lines
@@ -273,11 +285,11 @@ exports.savePageSchema = async (req, res, next) => {
         req.flash('success', `Page content settings saved`);
         res.redirect(`/`);
     }
-   return;
+    return;
 };
 
 exports.savePageSchemaSingle = async (req, res, next) => {
-    const contentSchema = {...req.body};
+    const contentSchema = { ...req.body };
     // assign content section index
     contentSchema.index = parseInt(contentSchema.index) || 0;
     let doc = abstractContentRules(contentSchema, req.params.pageId);
@@ -286,7 +298,7 @@ exports.savePageSchemaSingle = async (req, res, next) => {
         console.log(`new Mongo ID added: ${doc._id}`);
     }
     doc = deleteEmptyFields(doc);
-    const result = await Content.findOneAndUpdate({_id: doc._id}, doc, {upsert: true, new: true, runValidators: true}).exec();
+    const result = await Content.findOneAndUpdate({ _id: doc._id }, doc, { upsert: true, new: true, runValidators: true }).exec();
     req.flash('success', `Page content settings saved`);
     res.redirect('/');
 }
@@ -310,7 +322,7 @@ function bulkSave(documents, Model, match) {
             query[match] = document[match];
             bulk.find(query).upsert().updateOne(document);
         });
-        bulk.execute( (err, bulkres) => {
+        bulk.execute((err, bulkres) => {
             if (err) return reject(err);
             resolve(bulkres);
         });

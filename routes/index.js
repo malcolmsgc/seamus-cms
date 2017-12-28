@@ -26,7 +26,8 @@ router.get('/settings', navController.settingsPage );
 router.get('/users', catchErrors(navController.usersPage) );
 router.get('/page/:pageId', catchErrors(pageController.fetchPage) );
 router.get('/addpage/?(:step)?', catchErrors(pageController.checkPageExists), navController.addPage );
-// router.get('/editpage/:page/:step', navController.editPage );
+router.get('/editpage/:pageId/1', catchErrors(navController.editPageMeta) );
+router.get('/editpage/:pageId/2', catchErrors(navController.editPageDetails) );
 
 // FORM SUBMISSIONS
     // USER AUTH
@@ -41,10 +42,14 @@ router.post('/login', authController.login );
     // CMS MANAGEMENT
 router.post('/settings', catchErrors(pageController.saveSettings) );
 /** @todo update to pass through all entered data. Validator's matchedData only returns fields that were validated and are currently cutting out hlaf the inputted data  */
-router.post('/meta', 
+router.post('/meta/add', 
     // validationController.pageMetaRules,
     // validationController.pageMeta,
     catchErrors(pageController.saveNewPageMeta) );
+router.post('/meta/edit/:pageId', 
+    // validationController.pageMetaRules,
+    // validationController.pageMeta,
+    catchErrors(pageController.savePageMeta) );
 router.post('/schema/:pageId',
     // validationController.pageSchemaRules,
     // validationController.pageSchema,

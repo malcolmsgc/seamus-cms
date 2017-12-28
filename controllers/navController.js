@@ -36,7 +36,7 @@ exports.usersPage = async (req, res) => {
  */
 exports.addPage = (req, res, next) => {
     if (!req.params.step || req.params.step == '1') {
-        res.render('editPageMeta', { title: 'Add a new CMS page' });
+        res.render('editPageMeta', { title: 'Add a new CMS page', formAction: 'add' });
     }
     else if (req.params.step == '2') {
         res.render('editPage', { title: 'Set up new CMS page', page: { _id: req.pid, verb: "Add" } });
@@ -47,6 +47,29 @@ exports.addPage = (req, res, next) => {
         next(err);
     }
 };
+
+/** @function editPageMeta
+ * fetches page data by page id and then renders editPageMeta view
+ */
+exports.editPageMeta = async (req, res, next) => {
+    const page = await Page.findOne({ _id: req.params.pageId });
+    res.render('editPageMeta', { title: `Edit page details`, page, formAction: `edit/${req.params.pageId}` });
+};
+
+/** @function editPageDetails
+ * fetches page content and page title by page id and then renders editPage view
+ */
+exports.editPageDetails = async (req, res, next) => {
+    const page =  await Page.findOne({_id: req.params.pageId})
+        .populate({
+            path: 'content',
+            options: { sort: { index: 1 } }
+        })
+        select('title content')
+        .exec();
+    res.render('editPage', { title: `Edit content types for ${page.title}`, page: { _id: req.params.pageId, verb: "Edit" } });
+};
+
 
 exports.setUpPage = (req, res) => {
     res.render('editPage', { title: 'Set up page' });
