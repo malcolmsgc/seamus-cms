@@ -16,16 +16,19 @@ const settingsID = mongoose.Types.ObjectId(process.env.APP_SETTINGS_ID);
  * @param {Function} next
  * @summary Loads console and page summaries
  * Fetches pages from DB and sends page info to console view, which is then rendered
+ * Default sort
  */
 exports.fetchPages = async (req, res, next) => {
+    const sortBy = req.query.sort || "last_published";
+    const sortAsc = req.query.asc || 1;
     console.log('fetching existing pages');
     // const paginationPage = req.params.page || 1;
     // const limit = 6;
     // const skip = (paginationPage * limit) - limit;
-    const pagesPromise = Page.find({});
+    const pagesPromise = Page.find({})
+        .sort({ [sortBy]: [sortAsc] });
         // .skip(skip)
         // .limit(limit)
-        // .sort({ name: 1 });
     const countPromise = Page.count();
     const [pages, count] = await Promise.all([pagesPromise, countPromise]);
     // const numPages = Math.ceil(count / limit); //for console pagination, not number of pages to content manage
@@ -39,7 +42,7 @@ exports.fetchPages = async (req, res, next) => {
 }
 
 
-/** @function fetchPages
+/** @function fetchPage
  * @param {Object} req
  * @param {Object} res
  * @param {Function} next
@@ -47,7 +50,12 @@ exports.fetchPages = async (req, res, next) => {
  * Fetches page from DB and sends page info to 'edit' view, which is then rendered
  */
 exports.fetchPage = async (req, res, next) => {
-    const page = await Page.findOne({_id: req.params.pageId}).exec();
+    const page =  await Page.findOne({_id: req.params.pageId})
+        .populate({
+            path: 'content',
+            options: { sort: { index: 1 } }
+        })
+        .exec();
     res.render('contentManagePage', { title: "Edit page content", page });
     return;
 }

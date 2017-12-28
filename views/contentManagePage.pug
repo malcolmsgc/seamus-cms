@@ -1,4 +1,25 @@
 extends layout
 
 block content
-    pre= h.dump(page)
+    .inner
+        a(href=`/addpage/2?pid=${page._id}`): p Edit content schema
+        form.form(method="POST")
+            input.button(type="submit" value="Publish")
+            each item in page.content
+                case item.type
+                    when 'heading'
+                        div
+                            label(for=item._id)= item.title
+                            input(type="text" name=item._id value=item.content)
+                    when 'text'
+                        div
+                            label= item.title
+                            textarea(name=item._id)= item.content
+                    when 'image'
+                        div
+                            label= item.title
+                            input(type="file" name=item._id accept="image/gif,image/png,image/jpeg")
+                            //- if item.content
+                            //-     img(src=`/uploads/${store.photo}` alt=store.name width="200")
+
+            input.button(type="submit" value="Publish")
