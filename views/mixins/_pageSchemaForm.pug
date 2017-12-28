@@ -4,8 +4,9 @@ mixin pageSchemaForm(page = {})
     form.form(name="page_schema" action=`/schema/${page._id}` method="POST")
         p Choose what content to manage
         //- +contentSectionForm(Date.now())
-        include ../includes/_contentSectionForm
-        //- subsequent form sections added on button click. See addContentSection.js in public/javascripts/modules. Because PUG compiles before runtime manipulating the DOM with PUG isn't doable in any other way I could think of
+        each section, i in page.content
+            include ../includes/_contentSectionForm
+            //- subsequent form sections added on button click. See addContentSection.js in public/javascripts/modules. Because PUG compiles before runtime manipulating the DOM with PUG isn't doable in any other way I could think of
 
         //- change class on button
         button.nav__link(type="button" id="addSectionBtn") 
