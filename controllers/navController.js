@@ -39,7 +39,7 @@ exports.addPage = (req, res, next) => {
         res.render('editPageMeta', { title: 'Add a new CMS page', formAction: 'add' });
     }
     else if (req.params.step == '2') {
-        res.render('editPage', { title: 'Set up new CMS page', page: { _id: req.pid, verb: "Add" } });
+        res.render('editPage', { title: `Edit content sections for ${page.title || 'new page'}`, page: { _id: req.pid } });
     }
     else {
         const err = new Error('Not Found');
@@ -65,9 +65,9 @@ exports.editPageDetails = async (req, res, next) => {
             path: 'content',
             options: { sort: { index: 1 } }
         })
-        select('title content')
+        .select('title content')
         .exec();
-    res.render('editPage', { title: `Edit content types for ${page.title}`, page: { _id: req.params.pageId, verb: "Edit" } });
+    res.render('editPage', { title: `Edit content sections for ${page.title}`, page });
 };
 
 

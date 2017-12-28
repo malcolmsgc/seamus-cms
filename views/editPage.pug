@@ -8,4 +8,6 @@ block header
 
 block content
     .inner
+    pre= h.dump(page)
+        h3= title
         +pageSchemaForm(page)

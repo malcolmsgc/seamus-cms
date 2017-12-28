@@ -2,7 +2,6 @@
 
 mixin pageSchemaForm(page = {})
     form.form(name="page_schema" action=`/schema/${page._id}` method="POST")
-        h2 #{page.verb} content sections
         p Choose what content to manage
         //- +contentSectionForm(Date.now())
         include ../includes/_contentSectionForm
