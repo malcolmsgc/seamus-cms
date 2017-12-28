@@ -120,7 +120,7 @@ addSectionBtn.addEventListener('click', _addContentSection2.default);
 /* 3 */
 /***/ (function(module, exports) {
 
-throw new Error("Module build failed: TypeError: Cannot read property 'content' of undefined\n    at eval (eval at wrap (/Users/malcolm/Dev/Projects/Seamus CMS/dev/node_modules/pug-runtime/wrap.js:6:10), <anonymous>:3:550)\n    at template (eval at wrap (/Users/malcolm/Dev/Projects/Seamus CMS/dev/node_modules/pug-runtime/wrap.js:6:10), <anonymous>:5:2545)\n    at Object.module.exports (/Users/malcolm/Dev/Projects/Seamus CMS/dev/node_modules/pug-html-loader/lib/index.js:33:10)");
+throw new Error("Module build failed: TypeError: Cannot read property 'content' of undefined\n    at eval (eval at wrap (/Users/malcolm/Dev/Projects/Seamus CMS/dev/node_modules/pug-runtime/wrap.js:6:10), <anonymous>:3:374)\n    at template (eval at wrap (/Users/malcolm/Dev/Projects/Seamus CMS/dev/node_modules/pug-runtime/wrap.js:6:10), <anonymous>:5:2545)\n    at Object.module.exports (/Users/malcolm/Dev/Projects/Seamus CMS/dev/node_modules/pug-html-loader/lib/index.js:33:10)");
 
 /***/ })
 /******/ ]);

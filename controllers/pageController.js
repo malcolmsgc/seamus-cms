@@ -68,6 +68,7 @@ exports.fetchPage = async (req, res, next) => {
  * saves global app settings from a POST from the settings form.
  * Values stored as doc in settings collection. settingsID always used as _id to prevent additional documents being created. 
  * @todo refactor the two different DB queries into a single upsert using find/findOne
+ * @todo add sitename to app locals to be used within a session
  */
 exports.saveSettings = async (req, res) => {
     // Create new settings object
@@ -204,10 +205,12 @@ exports.savePageSchema = async (req, res, next) => {
     const indexesSorted = indexes.sort((a, b) => a > b);
     const lowestIndex = parseInt(indexesSorted[0]);
     let highestIndex = parseInt(indexesSorted[indexesSorted.length - 1]);
+    console.log(lowestIndex, highestIndex );
     // if no indexes lowest index should be falsy (NaN or null) after parseInt
-    if (!lowestIndex) {
+    // needs check for highest/lowest index of 0 which is also falsy
+    if (lowestIndex != 0 && !lowestIndex) {
         // if both lowest and highest values are falsy it means no indexes were given
-        if (!highestIndex) {
+        if (highestIndex != 0 && !highestIndex) {
             console.log('no indexes supplied');
             //transform sorted array's values to be the array index
             contentSchema.index = indexes.map((item, index) => index);
@@ -283,7 +286,7 @@ exports.savePageSchema = async (req, res, next) => {
         //on success, redirect to page edit screen
         console.log(`MongoDB bulk execution response -- ok: ${bulkResponse.ok}`);
         req.flash('success', `Page content settings saved`);
-        res.redirect(`/`);
+        res.redirect(`/page/${req.params.pageId}`);
     }
     return;
 };

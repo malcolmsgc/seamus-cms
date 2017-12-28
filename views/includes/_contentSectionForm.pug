@@ -3,7 +3,7 @@
     //- Future iterations may use (contenteditable="true") instead of form fields
     p: strong New Section
     //- form(name=`content_${id}` action='/schema/${id}' method="POST")
-
+    input(type="hidden" name="_id" value=page.content && page.content[i]._id)
     label(for="title") Title for content section
         span.--required (req)
     input(type="text" name='title' placeholder="Untitled section" value=page.content && page.content[i].title required) 
