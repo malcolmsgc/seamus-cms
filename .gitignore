@@ -5,13 +5,13 @@ variables.env
 *.css
 **/css
 /.sass-cache
-/dist
+**/dist
 /node_modules/
 /.vscode/settings.json
 .eslintrc.json
-/fonts
-/photos
-sample.json
+public/fonts
+public/photos
+**/uploads/gallery/**/*
 
 # Images #
 ##########

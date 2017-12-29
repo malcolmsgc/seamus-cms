@@ -58,10 +58,10 @@ router.post('/schema/:pageId',
     catchErrors(pageController.savePageSchemaSingle) 
 );
 router.post('/page/:pageId',
-    pageController.massageRawContent,
     pageController.imgUpload,
-    catchErrors(pageController.imgResize),
-    pageController.saveContent,
+    catchErrors(pageController.imgWrite),
+    pageController.massageRawContent,
+    catchErrors(pageController.saveContent),
 );
 
 

@@ -16,8 +16,7 @@ block content
             if page.last_published
                 p last published on #{page.last_published}
             a(href=`/editpage/${page._id}/1`): p Edit page details
-        form.form(method="POST") 
-            // enctype="multipart/form-data"
+        form.form(method="POST" enctype="multipart/form-data") 
             a(href=`/editpage/${page._id}/2`): p Edit content schema
             input.button(type="submit" value="Publish")
             each item in page.content
@@ -41,9 +40,10 @@ block content
                             label= item.title
                             if item.rules.length
                                 +displayRules(item.rules)
-                            input(type="file" name=item._id accept="image/gif,image/png,image/jpeg")
-                            input(type="hidden" name=item._id value="image")
+                            input(type="file" name="image" accept="image/gif,image/png,image/jpeg")
+                            input(type="hidden" name="image_ids" value=item._id)
                             if item.content
-                                img(src=`/uploads/${item.content}` alt=item.title width="200")
+                                img(src=`/uploads/originals/${item.content}` alt=item.title width="200")
+                                button(type="button") Delete image
 
             input.button(type="submit" value="Publish")

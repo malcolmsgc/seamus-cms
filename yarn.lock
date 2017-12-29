@@ -3620,7 +3620,7 @@ jest@^21.2.1:
   dependencies:
     jest-cli "^21.2.1"
 
-jimp@^0.2.27:
+jimp@0.2.28:
   version "0.2.28"
   resolved "https://registry.yarnpkg.com/jimp/-/jimp-0.2.28.tgz#dd529a937190f42957a7937d1acc3a7762996ea2"
   dependencies:

@@ -12,7 +12,7 @@ const { matchedData, sanitizeBody } = require('express-validator/filter');
 const { deleteEmptyFields, emptyString } = require('../helpers');
 const settingsID = mongoose.Types.ObjectId(process.env.APP_SETTINGS_ID);
 
-const multerOptions = {
+const imgUploadOptions = {
     storage: multer.memoryStorage(),
     fileFilter(req, file, cb) {
         const isImage = file.mimetype.startsWith('image/');
@@ -21,22 +21,54 @@ const multerOptions = {
             cb(null, true);
         }
         else {
-            cb({ message: 'That filetype is not supported for this content section'}, false);
+            cb({ message: 'That filetype is not supported for this content section' }, false);
         }
     }
 };
 
-exports.massageRawContent = (req, res, next) => {
-    res.json(req.body);
-    return;
-};
-exports.imgUpload = multer(multerOptions).single('image');
-exports.imgResize = async (req, res, next) => {
-    if (!req.file) {
+exports.imgUpload = multer(imgUploadOptions).array('image');
+
+exports.imgWrite = async (req, res, next) => {
+    if (!req.files.length) {
         next();
         return;
     }
-    res.send('upload step');
+    const errors = [];
+    const images = [];
+    req.files.forEach(async (img) => {
+        try {
+            const ext = img.mimetype.split('/')[1];
+            const filename = `${uuid.v4()}.${ext}`;
+            images.push(filename);
+            const photo = await jimp.read(img.buffer);
+            // limit images by pixel widthElements. 5120px is largest retina display as of 2017
+            /** @todo make max image width/size (can restrict with multer) allowable configurable by admin */
+            if (photo.bitmap.width > 5120) {
+                await photo.resize(5120, jimp.AUTO);
+            };
+            console.log(photo.bitmap.width);
+            await photo.write(`./public/uploads/gallery/originals/${filename}`);
+        }
+        catch (err) {
+            errors.push(err);
+            console.error(err);
+        }
+    });
+    req.body.images = images;
+    if (errors.length) {
+        errors.forEach((err) => req.flash('error', err.message));
+        res.redirect('back');
+        return;
+    }
+    next();
+    return;
+};
+
+exports.massageRawContent = (req, res, next) => {
+    console.log(req.body);
+    console.log(req.files);
+    res.json(req.body);
+    // next();
     return;
 };
 exports.saveContent = (req, res) => {
