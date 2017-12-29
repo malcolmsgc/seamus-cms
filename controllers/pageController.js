@@ -3,12 +3,46 @@ const mgIdIsValid = mongoose.Types.ObjectId.isValid;
 const Page = mongoose.model('Page');
 const Settings = mongoose.model('Setting');
 const Content = mongoose.model('Content');
+const multer = require('multer');
+const jimp = require('jimp');
+const uuid = require('uuid');
 const { check, body, validationResult } = require('express-validator/check');
 const { matchedData, sanitizeBody } = require('express-validator/filter');
 // const promisify = require('es6-promisify');
 const { deleteEmptyFields, emptyString } = require('../helpers');
 const settingsID = mongoose.Types.ObjectId(process.env.APP_SETTINGS_ID);
 
+const multerOptions = {
+    storage: multer.memoryStorage(),
+    fileFilter(req, file, cb) {
+        const isImage = file.mimetype.startsWith('image/');
+        /** @todo add customisable settings */
+        if (isImage) {
+            cb(null, true);
+        }
+        else {
+            cb({ message: 'That filetype is not supported for this content section'}, false);
+        }
+    }
+};
+
+exports.massageRawContent = (req, res, next) => {
+    res.json(req.body);
+    return;
+};
+exports.imgUpload = multer(multerOptions).single('image');
+exports.imgResize = async (req, res, next) => {
+    if (!req.file) {
+        next();
+        return;
+    }
+    res.send('upload step');
+    return;
+};
+exports.saveContent = (req, res) => {
+    res.send('Save content step. Still needs to be coded.');
+    return;
+}
 
 /** @function fetchPages
  * @param {Object} req

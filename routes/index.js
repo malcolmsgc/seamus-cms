@@ -57,6 +57,12 @@ router.post('/schema/:pageId',
     catchErrors(pageController.savePageSchema), 
     catchErrors(pageController.savePageSchemaSingle) 
 );
+router.post('/page/:pageId',
+    pageController.massageRawContent,
+    pageController.imgUpload,
+    catchErrors(pageController.imgResize),
+    pageController.saveContent,
+);
 
 
 module.exports = router;

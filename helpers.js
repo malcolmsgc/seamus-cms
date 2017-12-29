@@ -24,7 +24,8 @@ exports.menu = [
   { slug: '/', title: '{sitename}', icon: 'top', },
   { slug: '/settings', title: 'Settings', icon: 'cog', },
   { slug: '/users', title: 'Users', icon: 'tag', },
-  { slug: '/addpage/', title: 'Add Page', icon: 'add', },
+  { slug: '/images', title: 'Gallery', icon: 'map', },
+  { slug: '/addpage', title: 'Add Page', icon: 'add', },
 ];
 
 exports.emptyString = /^\s*$/;
