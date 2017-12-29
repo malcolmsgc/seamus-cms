@@ -1,0 +1,10 @@
+mixin displayRules(rulesArray)
+    for ruleset in rulesArray
+        - 
+            const { rule ,
+                max_value, max_unit, max_apply_to, 
+                min_value, min_unit, min_apply_to
+                } = ruleset
+        p= rule
+        p Ceiling: #{max_value}#{max_unit} #{max_apply_to}
+        p Floor: #{min_value}#{min_unit} #{min_apply_to}
