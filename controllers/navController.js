@@ -39,7 +39,7 @@ exports.addPage = (req, res, next) => {
         res.render('editPageMeta', { title: 'Add a new CMS page', formAction: 'add' });
     }
     else if (req.params.step == '2') {
-        res.render('editPage', { title: `Edit content sections for ${page.title || 'new page'}`, page: { _id: req.pid } });
+        res.render('editPage', { title: `Edit content sections for '${res.locals.pageTitle}'`, page: { _id: req.pid } });
     }
     else {
         const err = new Error('Not Found');

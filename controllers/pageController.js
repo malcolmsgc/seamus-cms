@@ -130,9 +130,10 @@ exports.checkPageExists = async (req, res, next) => {
     req.pid = req.query.pid || req.params.pageId;
     // check if id is properly formed and document for page exists
     const result = mgIdIsValid(req.pid) ?
-        await Page.findById(req.pid, { id: 1 })
+        await Page.findById(req.pid, { id: 1, title: 1 })
         : null;
     if (result) {
+        res.locals.pageTitle = result.title;
         next();
         return;
     }
@@ -202,10 +203,9 @@ exports.savePageSchema = async (req, res, next) => {
     //check if any indexes. Indexes required by Model. If not assigned by user these need to be programatically assigned.
     const { index: indexes } = contentSchema;
     // sort ascending and take first (lowest) and last (highest) value
-    const indexesSorted = indexes.sort((a, b) => a > b);
+    const indexesSorted = [...indexes].sort((a, b) => a > b);
     const lowestIndex = parseInt(indexesSorted[0]);
     let highestIndex = parseInt(indexesSorted[indexesSorted.length - 1]);
-    console.log(lowestIndex, highestIndex );
     // if no indexes lowest index should be falsy (NaN or null) after parseInt
     // needs check for highest/lowest index of 0 which is also falsy
     if (lowestIndex != 0 && !lowestIndex) {
@@ -303,7 +303,7 @@ exports.savePageSchemaSingle = async (req, res, next) => {
     doc = deleteEmptyFields(doc);
     const result = await Content.findOneAndUpdate({ _id: doc._id }, doc, { upsert: true, new: true, runValidators: true }).exec();
     req.flash('success', `Page content settings saved`);
-    res.redirect('/');
+    res.redirect(`/page/${req.params.pageId}`);
 }
 
 

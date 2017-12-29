@@ -1,8 +1,9 @@
+// add empty page object for when this snippet is compiled by webpack
+- if (!page) page = {}
 .content-section
     hr
     //- Future iterations may use (contenteditable="true") instead of form fields
     p: strong New Section
-    //- form(name=`content_${id}` action='/schema/${id}' method="POST")
     input(type="hidden" name="_id" value=page.content && page.content[i]._id)
     label(for="title") Title for content section
         span.--required (req)
