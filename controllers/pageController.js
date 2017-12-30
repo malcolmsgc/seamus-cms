@@ -68,7 +68,6 @@ exports.imgWrite = async (req, res, next) => {
 exports.massageRawContent = (req, res, next) => {
     const newBody = {...req.body};
     const idArr = Object.keys(newBody);
-    console.log(idArr);
     const docsArr = [];
     for (const key of idArr) {
         // handle images as a special case. Use 'images' array as this will only appear when new images selected by user
@@ -118,6 +117,10 @@ exports.saveContent = async (req, res, next) => {
     else {
         //on success, redirect to page edit screen
         console.log(`MongoDB bulk execution response -- ok: ${bulkResponse.ok}`);
+        const response = await Page.update({ _id: req.params.pageId},
+            { $set: { last_published: Date.now() } },
+            { runValidators: true}).exec();
+        if (response.err) console.error(response.err);
         req.flash('success', `Your content changes have been published.`);
         res.redirect(`/page/${req.params.pageId}`);
     }
