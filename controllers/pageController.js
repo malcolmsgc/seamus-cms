@@ -70,8 +70,8 @@ exports.massageRawContent = (req, res, next) => {
     const idArr = Object.keys(newBody);
     const docsArr = [];
     for (const key of idArr) {
-        // handle images as a special case
-        if (key === "image_ids") {
+        // handle images as a special case. Use 'images' array as this will only appear when new images selected by user
+        if (key === "images") {
             // loop through image_ids array and match up with content in images array
             newBody.image_ids.forEach( (id, index) => {
                 const doc = {};
@@ -81,10 +81,10 @@ exports.massageRawContent = (req, res, next) => {
                 docsArr.push(doc);
             } );
         }
-        // images array already dealt with so we skip it
-        if (key === "images") { continue; }
+        // images already dealt with so we skip it.
+        if (key === "image_ids") { continue; }
         const doc = {};
-        doc._id = key;
+        doc._id = ObjectId(key);
         doc.$set = { content: `${newBody[key][0]}` };
         docsArr.push(doc); 
     }
@@ -438,6 +438,7 @@ function bulkSave(documents, Model, match, doUpsert = true) {
                 // Intended for bulk $set so need to remove id from document or will fail. See shape of document passed from massageRawContent.
                 console.log('setting content for ' + document._id);
                 delete document._id;
+                console.log(document);
                 bulk.find(query).updateOne(document);
             }
         });

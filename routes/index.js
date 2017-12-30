@@ -61,7 +61,7 @@ router.post('/page/:pageId',
     pageController.imgUpload,
     catchErrors(pageController.imgWrite),
     pageController.massageRawContent,
-    catchErrors(pageController.saveContent),
+    catchErrors(pageController.saveContent)
 );
 
 
