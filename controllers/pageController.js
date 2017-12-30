@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const mgIdIsValid = mongoose.Types.ObjectId.isValid;
 const Page = mongoose.model('Page');
 const Settings = mongoose.model('Setting');
 const Content = mongoose.model('Content');
@@ -10,7 +9,9 @@ const { check, body, validationResult } = require('express-validator/check');
 const { matchedData, sanitizeBody } = require('express-validator/filter');
 // const promisify = require('es6-promisify');
 const { deleteEmptyFields, emptyString } = require('../helpers');
-const settingsID = mongoose.Types.ObjectId(process.env.APP_SETTINGS_ID);
+const ObjectId = mongoose.Types.ObjectId;
+const mgIdIsValid = ObjectId.isValid;
+const settingsID = ObjectId(process.env.APP_SETTINGS_ID);
 
 const imgUploadOptions = {
     storage: multer.memoryStorage(),
@@ -64,15 +65,37 @@ exports.imgWrite = async (req, res, next) => {
     return;
 };
 
+/** @todo santize, esp important as bulk operations bypass moongoose validators and cannot run them independatly in this case without much more faff */
 exports.massageRawContent = (req, res, next) => {
-    console.log(req.body);
-    console.log(req.files);
-    res.json(req.body);
-    // next();
+    const newBody = {...req.body};
+    const idArr = Object.keys(newBody);
+    const docsArr = [];
+    for (const key of idArr) {
+        // handle images as a special case
+        if (key === "image_ids") {
+            // loop through image_ids array and match up with content in images array
+            newBody.image_ids.forEach( (id, index) => {
+                const doc = {};
+                doc._id = ObjectId(id);
+                const content = newBody.images[index];
+                doc.$set = { content };
+                docsArr.push(doc);
+            } );
+        }
+        // images array already dealt with so we skip it
+        if (key === "images") { continue; }
+        const doc = {};
+        doc._id = key;
+        doc.$set = { content: `${newBody[key][0]}` };
+        docsArr.push(doc); 
+    }
+    req.body = docsArr;
+    next();
     return;
 };
+
 exports.saveContent = (req, res) => {
-    res.send('Save content step. Still needs to be coded.');
+    res.json([...req.body]);
     return;
 }
 
@@ -195,7 +218,7 @@ exports.checkPageExists = async (req, res, next) => {
     }
     req.pid = req.query.pid || req.params.pageId;
     // check if id is properly formed and document for page exists
-    const result = mgIdIsValid(req.pid) ?
+    const result = ObjectId.isValid(req.pid) ?
         await Page.findById(req.pid, { id: 1, title: 1 })
         : null;
     if (result) {
@@ -382,14 +405,21 @@ exports.savePageSchemaSingle = async (req, res, next) => {
  * @return {Promise}  always resolves a BulkWriteResult
  */
 // Adapted from answer given by konsumer on S.O. (https://stackoverflow.com/questions/25285232/bulk-upsert-in-mongodb-using-mongoose)
-function bulkSave(documents, Model, match) {
+function bulkSave(documents, Model, match, doUpsert = true) {
     match = match || '_id';
     return new Promise((resolve, reject) => {
         const bulk = Model.collection.initializeUnorderedBulkOp();
         documents.forEach((document) => {
             const query = {};
             query[match] = document[match];
-            bulk.find(query).upsert().updateOne(document);
+            if (doUpsert) {
+                bulk.find(query).upsert().updateOne(document);
+            }
+            else {
+                // Intended for bulk $set so need to remove id from document or it will trigger a replacement
+                // delete document._id;
+                bulk.find(query).updateOne(document);
+            }
         });
         bulk.execute((err, bulkres) => {
             if (err) return reject(err);
@@ -397,4 +427,6 @@ function bulkSave(documents, Model, match) {
         });
     });
 }
+
+
 
