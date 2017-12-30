@@ -43,7 +43,7 @@ block content
                             input(type="file" name="image" accept="image/gif,image/png,image/jpeg")
                             input(type="hidden" name="image_ids" value=item._id)
                             if item.content
-                                img(src=`/uploads/originals/${item.content}` alt=item.title width="200")
+                                img(src=`/uploads/gallery/originals/${item.content}` alt=item.title width="200")
                                 button(type="button") Delete image
 
             input.button(type="submit" value="Publish")

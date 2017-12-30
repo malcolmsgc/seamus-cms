@@ -47,7 +47,6 @@ exports.imgWrite = async (req, res, next) => {
             if (photo.bitmap.width > 5120) {
                 await photo.resize(5120, jimp.AUTO);
             };
-            console.log(photo.bitmap.width);
             await photo.write(`./public/uploads/gallery/originals/${filename}`);
         }
         catch (err) {
@@ -94,8 +93,28 @@ exports.massageRawContent = (req, res, next) => {
     return;
 };
 
-exports.saveContent = (req, res) => {
-    res.json([...req.body]);
+exports.saveContent = async (req, res, next) => {
+    const documents = [...req.body];
+    const bulkResponse = await bulkSave(documents, Content, '_id', false);
+    if (bulkResponse.writeErrors) {
+        console.error('Write error within pageController.saveContent using bulkSave function\n' + bulkResponse.writeErrors);
+        const err = new Error('Error saving. Please try again. If error persists please contact an administrator.');
+        err.status = 500;
+        next(err);
+
+    }
+    if (bulkResponse.writeConcernErrors) {
+        console.error('Write concern error within pageController.savePageSchema using bulkSave function\n' + bulkResponse.writeErrors);
+        const err = new Error('Error saving. Please try again. If error persists please contact an administrator.');
+        err.status = 500;
+        next(err);
+    }
+    else {
+        //on success, redirect to page edit screen
+        console.log(`MongoDB bulk execution response -- ok: ${bulkResponse.ok}`);
+        req.flash('success', `Your content changes have been published.`);
+        res.redirect(`/page/${req.params.pageId}`);
+    }
     return;
 }
 
@@ -416,8 +435,9 @@ function bulkSave(documents, Model, match, doUpsert = true) {
                 bulk.find(query).upsert().updateOne(document);
             }
             else {
-                // Intended for bulk $set so need to remove id from document or it will trigger a replacement
-                // delete document._id;
+                // Intended for bulk $set so need to remove id from document or will fail. See shape of document passed from massageRawContent.
+                console.log('setting content for ' + document._id);
+                delete document._id;
                 bulk.find(query).updateOne(document);
             }
         });
