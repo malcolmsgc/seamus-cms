@@ -68,25 +68,31 @@ exports.imgWrite = async (req, res, next) => {
 exports.massageRawContent = (req, res, next) => {
     const newBody = {...req.body};
     const idArr = Object.keys(newBody);
+    console.log(idArr);
     const docsArr = [];
     for (const key of idArr) {
         // handle images as a special case. Use 'images' array as this will only appear when new images selected by user
         if (key === "images") {
             // loop through image_ids array and match up with content in images array
             newBody.image_ids.forEach( (id, index) => {
-                const doc = {};
-                doc._id = ObjectId(id);
-                const content = newBody.images[index];
-                doc.$set = { content };
-                docsArr.push(doc);
+                const filename = newBody.images[index];
+                if (filename) {
+                    const doc = {};
+                    doc._id = ObjectId(id);
+                    const content = filename;
+                    doc.$set = { content };
+                    docsArr.push(doc);
+                }
             } );
         }
         // images already dealt with so we skip it.
-        if (key === "image_ids") { continue; }
-        const doc = {};
-        doc._id = ObjectId(key);
-        doc.$set = { content: `${newBody[key][0]}` };
-        docsArr.push(doc); 
+        else if (key === "image_ids") { continue; }
+        else {
+            const doc = {};
+            doc._id = ObjectId(key);
+            doc.$set = { content: `${newBody[key][0]}` };
+            docsArr.push(doc); 
+        }
     }
     req.body = docsArr;
     next();
@@ -438,7 +444,6 @@ function bulkSave(documents, Model, match, doUpsert = true) {
                 // Intended for bulk $set so need to remove id from document or will fail. See shape of document passed from massageRawContent.
                 console.log('setting content for ' + document._id);
                 delete document._id;
-                console.log(document);
                 bulk.find(query).updateOne(document);
             }
         });
