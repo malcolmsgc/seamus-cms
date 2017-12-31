@@ -86,18 +86,17 @@ var _handleContentSections = __webpack_require__(10);
 
 // IMPORT SASS FILES
 var addSectionBtn = document.querySelector('#addSectionBtn');
-// JS TO ADD/DELETE NEW FORM SECTIONS TO PAGE BUILDER FORM
+
+// JS TO ADD/DELETE NEW FORM SECTIONS TO/FROM PAGE BUILDER FORM
 
 var removeSectionBtns = document.querySelectorAll('.removeSectionBtn');
 if (addSectionBtn) addSectionBtn.addEventListener('click', _handleContentSections.addContentSection);
-if (removeSectionBtns) {
-    console.log(removeSectionBtns);
+if (removeSectionBtns.length) {
     removeSectionBtns.forEach(function (btn) {
         console.log(btn);
         btn.addEventListener('click', _handleContentSections.removeContentSection);
     });
 }
-// addSectionBtn.addEventListener('click', addContentSection);
 
 /***/ }),
 /* 3 */
