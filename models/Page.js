@@ -71,6 +71,12 @@ pageSchema.virtual('content', {
     foreignField: 'page'
 });
 
+pageSchema.statics.timestampQuery = function (id, field, val) {
+    return this.findOneAndUpdate({ _id: id },
+    { $set: { [field]: val } },
+    { runValidators: true, new: true });
+};
+
 pageSchema.plugin(beautifyUnique);
 
 module.exports = mongoose.model('Page', pageSchema);
