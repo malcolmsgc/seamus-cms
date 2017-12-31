@@ -8,7 +8,15 @@ const removeSectionBtns = document.querySelectorAll('.removeSectionBtn');
 if (addSectionBtn) addSectionBtn.addEventListener('click', addContentSection);
 if (removeSectionBtns.length) {
     removeSectionBtns.forEach( (btn) => {
-        console.log(btn);
         btn.addEventListener('click', removeContentSection );
+    } );
+}
+
+// DELETE A USER
+import deleteUser from './modules/deleteUser';
+const deleteUserBtns = document.querySelectorAll('.deleteUserBtn');
+if (deleteUserBtns.length) {
+    deleteUserBtns.forEach( (btn) => {
+        btn.addEventListener('click', deleteUser );
     } );
 }

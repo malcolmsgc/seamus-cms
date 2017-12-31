@@ -5,5 +5,8 @@ block content
         h2= title
         a(href="/register"): p Create new user
         hr
-        each user in users
-            p #{user}
+        each acc in users
+            p #{acc.firstname} #{acc.lastname}: #{acc.role}
+            if user.role === 'administrator'
+                button(type="button" class="deleteUserBtn" data-id=`${acc._id}`) delete
+            hr
