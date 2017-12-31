@@ -339,7 +339,7 @@ exports.savePageSchema = async (req, res, next) => {
             // keep existing indexes. Where no int supplied as index add an index by incrementing the previous highestIndex
             contentSchema.index = indexes.map((item, index) => {
                 const parsed = parseInt(item);
-                if (parsed)
+                if (parsed === 0 || parsed)
                     return parsed;
                 else
                     return ++highestIndex;
