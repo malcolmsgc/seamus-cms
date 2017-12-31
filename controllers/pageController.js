@@ -458,5 +458,12 @@ function bulkSave(documents, Model, match, doUpsert = true) {
     });
 }
 
+// DELETIONS
+    /** @todo this should probably be moved to api  */
+exports.deleteContentSection = async (req, res, next) => {
+    const returned = await Content.findByIdAndRemove(req.params.contentId).exec();
+    res.json(returned);
+};
+
 
 

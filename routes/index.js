@@ -64,5 +64,11 @@ router.post('/page/:pageId',
     catchErrors(pageController.saveContent)
 );
 
+// DELETIONS
+    /** @todo this should probably be moved to api 
+     * @todo change to DELETE once tested with GET
+    */
+router.delete('/delete/content/:contentId', catchErrors(pageController.deleteContentSection));
+
 
 module.exports = router;

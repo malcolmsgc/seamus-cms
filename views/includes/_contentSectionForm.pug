@@ -3,7 +3,12 @@
 .content-section
     hr
     //- Future iterations may use (contenteditable="true") instead of form fields
-    button(type="button" class="deleteSection" onClick="this.parentElement.remove()") &times;
+    if (page.content && page.content[i]._id)
+        //- p: a(href=`/delete/content/${page.content[i]._id}`) Delete from DB
+        button(type="button" class="removeSectionBtn" data-id=page.content[i]._id) &times;
+        //- button(type="button" class="removeSectionBtn" onClick=`() => removeContentSection(${page.content[i]._id})`) &times;
+    else
+        button(type="button" onClick="this.parentElement.remove()") &times;
     p: strong New Section
     input(type="hidden" name="_id" value=page.content && page.content[i]._id)
     label(for="title") Title for content section
@@ -39,6 +44,5 @@
         input(type="text" name='max_apply_to' value=page.content && page.content[i].rules.max_apply_to) 
         label(for="min_apply_to") Min value applies to (e.g. height)
         input(type="text" name='min_apply_to' value=page.content && page.content[i].rules.min_apply_to) 
-
 
         

@@ -1,6 +1,16 @@
 // IMPORT SASS FILES
 import '../sass/style.scss';
-// JS TO ADD NEW FORM SECTIONS TO PAGE BUILDER FORM
-import addContentSection from './modules/addContentSection';
+// JS TO ADD/DELETE NEW FORM SECTIONS TO PAGE BUILDER FORM
+import { addContentSection, removeContentSection } from './modules/handleContentSections';
+
 const addSectionBtn = document.querySelector('#addSectionBtn');
-addSectionBtn.addEventListener('click', addContentSection);
+const removeSectionBtns = document.querySelectorAll('.removeSectionBtn');
+if (addSectionBtn) addSectionBtn.addEventListener('click', addContentSection);
+if (removeSectionBtns) {
+    console.log(removeSectionBtns);
+    removeSectionBtns.forEach( (btn) => {
+        console.log(btn);
+        btn.addEventListener('click', removeContentSection );
+    } );
+}
+    // addSectionBtn.addEventListener('click', addContentSection);
