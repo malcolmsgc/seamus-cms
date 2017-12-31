@@ -3,6 +3,7 @@
 .content-section
     hr
     //- Future iterations may use (contenteditable="true") instead of form fields
+    button(type="button" class="deleteSection" onClick="this.parentElement.remove()") &times;
     p: strong New Section
     input(type="hidden" name="_id" value=page.content && page.content[i]._id)
     label(for="title") Title for content section

@@ -11,8 +11,7 @@ mixin pageSchemaForm(page = {})
             include ../includes/_contentSectionForm
             //- subsequent form sections added on button click. See addContentSection.js in public/javascripts/modules. Because PUG compiles before runtime manipulating the DOM with PUG isn't doable in any other way I could think of
 
-        //- change class on button
-        button.nav__link(type="button" id="addSectionBtn") 
+        button(type="button" id="addSectionBtn") 
             != h.icon('add')
             span Add section
         input.button(for="page_schema" type="submit" value="Save")
