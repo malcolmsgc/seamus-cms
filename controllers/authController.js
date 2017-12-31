@@ -18,7 +18,7 @@ const authExceptions = ["/login", "/register"];
  *  @required for permissionsCheck method
  *  Array of paths that administrator role can access, i.e. other roles should not access
  */
-const administratorOnly = ["/addpage"];
+const administratorOnly = ["/addpage", "/delete/user/:userId"];
 
 exports.login = passport.authenticate('local', {
     failureRedirect: '/login',

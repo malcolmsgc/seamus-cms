@@ -175,11 +175,27 @@ module.exports = "<!-- add empty page object for when this snippet is compiled b
 
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
 function deleteUser() {
-  alert('deleted');
-}
+    var _this = this;
+
+    var confirmed = window.confirm('This action will permanently delete all the saved data for this user.\n\nDo you wish to proceed?');
+    if (confirmed) {
+        var id = this.dataset.id;
+        var request = new Request('/delete/user/' + id, { method: 'DELETE', credentials: 'same-origin' });
+        fetch(request).then(function (res) {
+            if (res.ok) {
+                _this.parentNode.remove();
+                return res.json();
+            } else throw new Error('Delete user failed\nRESPONSE STATUS: ' + res.status);
+        }).then(function (json) {
+            return console.log('deleted user ' + json.firstname + ' ' + json.firstname + ': ' + json._id);
+        }).catch(function (err) {
+            return alert(err);
+        });
+    }
+};
 
 exports.default = deleteUser;
 

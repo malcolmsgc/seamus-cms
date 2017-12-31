@@ -55,3 +55,11 @@ exports.updateAccount = async (req, res) => {
     req.flash('success', 'User updated');
     res.redirect('back');
 }
+
+/** @function deleteUser 
+ * WARNING: It is possible for a user to delete him/herself. This is not explicitly prevented via the API and should be handled by further logic if necessary.
+*/
+exports.deleteUser = async (req, res, next) => {
+    const returned = await User.findByIdAndRemove(req.params.userId).exec();
+    res.json(returned);
+};

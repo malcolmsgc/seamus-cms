@@ -70,6 +70,7 @@ router.post('/page/:pageId',
      * @todo change to DELETE once tested with GET
     */
 router.delete('/delete/content/:contentId', catchErrors(pageController.deleteContentSection));
+router.delete('/delete/user/:userId', catchErrors(userController.deleteUser));
 
 
 module.exports = router;

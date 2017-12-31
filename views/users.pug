@@ -3,10 +3,13 @@ extends layout
 block content
     .inner
         h2= title
+        p= user._id
         a(href="/register"): p Create new user
         hr
         each acc in users
-            p #{acc.firstname} #{acc.lastname}: #{acc.role}
-            if user.role === 'administrator'
-                button(type="button" class="deleteUserBtn" data-id=`${acc._id}`) delete
-            hr
+            .userSummary
+                p #{acc.firstname} #{acc.lastname}
+                p Role: #{acc.role}
+                if (user.role === 'administrator' && (user._id.toString() !== acc._id.toString()) )
+                    button(type="button" class="deleteUserBtn" data-id=`${acc._id}`) delete
+                hr
