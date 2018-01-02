@@ -494,15 +494,34 @@ exports.siteSearch = async (req, res, next) => {
         $text: {
             $search: searchString,
         }
-    }).select('title subtitle rel_path');
+    }, 
+    { 
+        score: { $meta: 'textScore'}
+    })
+    // .select('title subtitle rel_path score')
+    .sort({
+        score: { $meta: 'textScore'}
+    })
+    ;
     const deepSearch = Content.find({
         $text: {
             $search: searchString,
         }
-    }).populate({
+    },
+    { 
+        score: { $meta: 'textScore'},
+        page: 1,
+        title: 1,
+        content: 1
+    })
+    .populate({
         path: 'page',
         select: 'title subtitle rel_path'
-    }).select('page title content');
+    })
+    .sort({
+        score: { $meta: 'textScore'}
+    })
+    ;
     let result;
     if (deep) {
         const [ pagemeta, content ] = await Promise.all([shallowSearch, deepSearch])
