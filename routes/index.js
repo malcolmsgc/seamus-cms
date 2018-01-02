@@ -66,11 +66,13 @@ router.post('/page/:pageId',
 );
 
 // DELETIONS
-    /** @todo this should probably be moved to api 
-     * @todo change to DELETE once tested with GET
-    */
-router.delete('/delete/content/:contentId', catchErrors(pageController.deleteContentSection));
-router.delete('/delete/user/:userId', catchErrors(userController.deleteUser));
 
+    // single action delete
+router.delete('/delete/content/:contentId', catchErrors(pageController.deleteContentSection));
+router.delete('/delete/page/:pageId', catchErrors(pageController.deletePage));
+router.delete('/delete/user/:userId', catchErrors(userController.deleteUser));
+    
+    // bulk action delete
+        /** @todo bulk action delete */
 
 module.exports = router;

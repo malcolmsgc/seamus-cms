@@ -459,10 +459,25 @@ function bulkSave(documents, Model, match, doUpsert = true) {
 }
 
 // DELETIONS
-    /** @todo this should probably be moved to api  */
+
 exports.deleteContentSection = async (req, res, next) => {
     const returned = await Content.findByIdAndRemove(req.params.contentId).exec();
     res.json(returned);
+};
+
+exports.deletePage = async (req, res, next) => {
+    //remove all content documents
+    const deleteContent = Content.deleteMany({ page: req.params.pageId });
+    // remove page
+    const deletePg = Page.findByIdAndRemove(req.params.pageId, {rawResult: true});
+    // execute as batched promise
+    const [contentResult, pageResult] = await Promise.all([deleteContent , deletePg]);
+    // return write result as json
+    console.log('--');
+    console.log(`Page ${pageResult.value._id} deletion\n title: ${pageResult.value.title}\n ok: ${pageResult.ok}\n content deletion result: ${JSON.stringify(contentResult.result)}`);
+    console.log('--');
+    req.flash('success', `${pageResult.value.title} deleted`);
+    res.json({contentResult, pageResult});
 };
 
 

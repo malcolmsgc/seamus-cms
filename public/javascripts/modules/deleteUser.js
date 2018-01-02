@@ -19,6 +19,6 @@ function deleteUser() {
                 (err) => alert(err)
             );
     }
-};
+}
 
 export default deleteUser;

@@ -3,7 +3,7 @@ include mixins/_displayRules
 
 block content
     .inner
-        div
+        .form
             h3= page.title
             if page.subtitle
                 p: strong= page.subtitle
@@ -16,6 +16,7 @@ block content
             if page.last_published
                 p last published on #{page.last_published}
             a(href=`/editpage/${page._id}/1`): p Edit page details
+            button(type="button" class="deletePageBtn" "data-id"=page._id) Delete page
         form.form(method="POST" enctype="multipart/form-data") 
             a(href=`/editpage/${page._id}/2`): p Edit content schema
             input.button(type="submit" value="Publish")

@@ -17,7 +17,10 @@ const pageSchema = new Schema({
     subtitle: {
         type: String,
         trim: true,
-        validate: [validator.isAscii, 'Only ASCII characters allowed in page subtitle']
+        validate: {
+            validator: validator.isAscii, 
+            message: 'Only ASCII characters allowed in page subtitle'
+        }
     },
     /** 
      * @property index {number}

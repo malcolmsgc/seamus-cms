@@ -131,6 +131,10 @@ var _deleteUser = __webpack_require__(10);
 
 var _deleteUser2 = _interopRequireDefault(_deleteUser);
 
+var _deletePage = __webpack_require__(11);
+
+var _deletePage2 = _interopRequireDefault(_deletePage);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // IMPORT SASS FILES
@@ -154,6 +158,11 @@ if (deleteUserBtns.length) {
         btn.addEventListener('click', _deleteUser2.default);
     });
 }
+
+// DELETE A PAGE AND ASSOCIATED CONTENT (EXCEPT UPLOADED IMGS)
+
+var deletePageBtn = document.querySelector('.deletePageBtn');
+if (deletePageBtn) deletePageBtn.addEventListener('click', _deletePage2.default);
 
 /***/ }),
 /* 3 */
@@ -195,9 +204,38 @@ function deleteUser() {
             return alert(err);
         });
     }
-};
+}
 
 exports.default = deleteUser;
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+function deletePage() {
+    var confirmed = window.confirm('This action will permanently delete this page and all its content.\n\nDo you wish to proceed?');
+    if (confirmed) {
+        var id = this.dataset.id;
+        var request = new Request('/delete/page/' + id, { method: 'DELETE', credentials: 'same-origin' });
+        fetch(request).then(function (res) {
+            if (res.ok) {
+                return res.json();
+            } else throw new Error('Delete page failed\nRESPONSE STATUS: ' + res.status);
+        }).then(function (json) {
+            location.assign('/');
+        }).catch(function (err) {
+            return console.error(err);
+        });
+    }
+}
+
+exports.default = deletePage;
 
 /***/ })
 /******/ ]);

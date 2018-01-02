@@ -20,3 +20,8 @@ if (deleteUserBtns.length) {
         btn.addEventListener('click', deleteUser );
     } );
 }
+
+// DELETE A PAGE AND ASSOCIATED CONTENT (EXCEPT UPLOADED IMGS)
+import deletePage from './modules/deletePage';
+const deletePageBtn = document.querySelector('.deletePageBtn');
+if (deletePageBtn) deletePageBtn.addEventListener('click', deletePage );
