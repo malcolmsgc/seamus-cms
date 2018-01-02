@@ -472,12 +472,46 @@ exports.deletePage = async (req, res, next) => {
     const deletePg = Page.findByIdAndRemove(req.params.pageId, {rawResult: true});
     // execute as batched promise
     const [contentResult, pageResult] = await Promise.all([deleteContent , deletePg]);
-    // return write result as json
     console.log('--');
     console.log(`Page ${pageResult.value._id} deletion\n title: ${pageResult.value.title}\n ok: ${pageResult.ok}\n content deletion result: ${JSON.stringify(contentResult.result)}`);
     console.log('--');
+    // flash message to show after redirect
     req.flash('success', `${pageResult.value.title} deleted`);
+    // return write result as json
     res.json({contentResult, pageResult});
+};
+
+// API
+
+/** @function search
+ *  @param {string} s
+ *  @param {string} deep
+ */
+exports.siteSearch = async (req, res, next) => {
+    const searchString = req.query.s;
+    const deep = req.query.deep === 'true';
+    const shallowSearch = Page.find({
+        $text: {
+            $search: searchString,
+        }
+    }).select('title subtitle rel_path');
+    const deepSearch = Content.find({
+        $text: {
+            $search: searchString,
+        }
+    }).populate({
+        path: 'page',
+        select: 'title subtitle rel_path'
+    }).select('page title content');
+    let result;
+    if (deep) {
+        const [ pagemeta, content ] = await Promise.all([shallowSearch, deepSearch])
+        result = { pagemeta, content };
+    }
+    else {
+        result = await shallowSearch.exec();
+    }
+    res.json(result);
 };
 
 

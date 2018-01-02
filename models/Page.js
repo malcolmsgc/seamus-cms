@@ -74,6 +74,12 @@ pageSchema.virtual('content', {
     foreignField: 'page'
 });
 
+pageSchema.index({
+    title: 'text',
+    subtitle: 'text',
+    rel_path: 'text'
+});
+
 pageSchema.statics.timestampQuery = function (id, field, val) {
     return this.findOneAndUpdate({ _id: id },
     { $set: { [field]: val } },
