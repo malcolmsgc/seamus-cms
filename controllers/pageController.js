@@ -549,15 +549,14 @@ exports.siteSearch = async (req, res, next) => {
  * relpath
  * title
  * query params that are modifiers:
+ * prune - return all fields or pared down selection. Pruned by default. Set to 'false' if you require all fields.
  * @todo partial - if set to true the query will match values that include the provided arg. Does not work for page id.
  * The first two are unique and will return only a single document. If you use both and they're not for the same document no document will be returned. Title may be used by various documents
- * @todo format relpath to ensure it always begins with forward slash
- * @todo all data returned vs selection
  * @todo return {css_selection: content} as key : value 🍀
 */
 exports.getPageContent = async (req, res, next) => {
     // take accepted query args off of the request object
-    let { pid, relpath: rel_path , title, partial } = req.query;
+    let { pid, relpath: rel_path , title, prune } = req.query;
     let _id;
     if (pid) {
         if (mgIdIsValid(pid)) {
@@ -583,11 +582,27 @@ exports.getPageContent = async (req, res, next) => {
     console.log(query);
     // check there is a query. Prevent a query without it, which would return all pages.
     if (Object.keys(query).length) {
-        const pages = await Page.find(query);
+        let selection, contentSelection;
+        if (prune && prune === 'false') {
+            selection = '';
+            contentSelection = '-rules';
+        }
+        else {
+            selection = 'title subtitle last_published';
+            contentSelection = 'content index';
+        } 
+        const pages = await Page.find(query)
+            .populate({
+                path: 'content',
+                select: contentSelection
+            })
+            .select(selection);
         res.json(pages);
     }
     else res.status(200).send('200 OK. No matches found');
 };
 
-
+exports.getPageContentBySelectors = () => {
+    return;
+};
 
