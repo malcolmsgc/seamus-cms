@@ -484,8 +484,13 @@ exports.deletePage = async (req, res, next) => {
 // API
 
 /** @function search
- *  @param {string} s
- *  @param {string} deep
+ *  @param {string} s - search string used to query database documents
+ *  @param {string} deep - flag for whether a deep or shallow search is performed. Must be set to 'true' for deep search.
+ * Function takes in a string of search terms that follow rules of MongoDB search terms (@see https://docs.mongodb.com/manual/text-search/). If deep flag is set to 'true' a deep search will be performed. Otherwise a shallow search will be performed, i.e. this is default.
+ * @returns search results from pages and contents collections ranked by textscore. Shallow search returns only page results: title, subtitle, relative path, textscore. Deep search also returns results from the contents collection. In short, the shallow search provides an array of matches with page title, subtitle, and rel_path. Deep search provides those (in the pagemeta object) as well as an array of results from the actual content (in the content object).
+ * 
+ * The function is used in Seamus' site search but this is also available for use within the managed site to provide a search feature.
+ *  
  */
 exports.siteSearch = async (req, res, next) => {
     const searchString = req.query.s;
@@ -496,11 +501,13 @@ exports.siteSearch = async (req, res, next) => {
         }
     }, 
     { 
-        score: { $meta: 'textScore'}
+        textscore: { $meta: 'textScore'},
+        title: 1,
+        subtitle: 1,
+        rel_path: 1,
     })
-    // .select('title subtitle rel_path score')
     .sort({
-        score: { $meta: 'textScore'}
+        textscore: { $meta: 'textScore'}
     })
     ;
     const deepSearch = Content.find({
@@ -509,7 +516,7 @@ exports.siteSearch = async (req, res, next) => {
         }
     },
     { 
-        score: { $meta: 'textScore'},
+        textscore: { $meta: 'textScore'},
         page: 1,
         title: 1,
         content: 1
@@ -519,7 +526,7 @@ exports.siteSearch = async (req, res, next) => {
         select: 'title subtitle rel_path'
     })
     .sort({
-        score: { $meta: 'textScore'}
+        textscore: { $meta: 'textScore'}
     })
     ;
     let result;

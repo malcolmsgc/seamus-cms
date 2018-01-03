@@ -97,8 +97,6 @@ const contentSchema = new Schema({
 contentSchema.index({
     title: 'text',
     content: 'text'
-    // css_selector: 'text'
-    // page:
 });
 
 contentSchema.plugin(beautifyUnique);
