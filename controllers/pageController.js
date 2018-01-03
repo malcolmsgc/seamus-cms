@@ -8,7 +8,7 @@ const uuid = require('uuid');
 const { check, body, validationResult } = require('express-validator/check');
 const { matchedData, sanitizeBody } = require('express-validator/filter');
 // const promisify = require('es6-promisify');
-const { deleteEmptyFields, emptyString } = require('../helpers');
+const { deleteEmptyFields, emptyString, formatRelPath } = require('../helpers');
 const ObjectId = mongoose.Types.ObjectId;
 const mgIdIsValid = ObjectId.isValid;
 const settingsID = ObjectId(process.env.APP_SETTINGS_ID);
@@ -213,6 +213,7 @@ exports.saveSettings = async (req, res) => {
 
 exports.saveNewPageMeta = async (req, res) => {
     const pageMeta = deleteEmptyFields(req.body);
+    if (pageMeta.rel_path) pageMeta.rel_path = formatRelPath(pageMeta.rel_path);
     const page = await (new Page(pageMeta)).save();
     req.flash('success', `Page created for ${page.title}`);
     res.redirect(`/addpage/2?pid=${page._id}`);
@@ -221,6 +222,7 @@ exports.saveNewPageMeta = async (req, res) => {
 exports.savePageMeta = async (req, res) => {
     req.body._id = req.params.pageId;
     const pageMeta = new Page(deleteEmptyFields(req.body));
+    if (pageMeta.rel_path) pageMeta.rel_path = formatRelPath(pageMeta.rel_path);
     const page = await Page.findOneAndUpdate(
         // query
         { _id: req.params.pageId },
@@ -483,10 +485,10 @@ exports.deletePage = async (req, res, next) => {
 
 // API
 
-/** @function search
+/** @function siteSearch
  *  @param {string} s - search string used to query database documents
  *  @param {string} deep - flag for whether a deep or shallow search is performed. Must be set to 'true' for deep search.
- * Function takes in a string of search terms that follow rules of MongoDB search terms (@see https://docs.mongodb.com/manual/text-search/). If deep flag is set to 'true' a deep search will be performed. Otherwise a shallow search will be performed, i.e. this is default.
+ * Function takes in request object with a string of search terms that follow rules of MongoDB search terms (@see https://docs.mongodb.com/manual/text-search/). If deep flag is set to 'true' a deep search will be performed. Otherwise a shallow search will be performed, i.e. this is default.
  * @returns search results from pages and contents collections ranked by textscore. Shallow search returns only page results: title, subtitle, relative path, textscore. Deep search also returns results from the contents collection. In short, the shallow search provides an array of matches with page title, subtitle, and rel_path. Deep search provides those (in the pagemeta object) as well as an array of results from the actual content (in the content object).
  * 
  * The function is used in Seamus' site search but this is also available for use within the managed site to provide a search feature.
@@ -538,6 +540,53 @@ exports.siteSearch = async (req, res, next) => {
         result = await shallowSearch.exec();
     }
     res.json(result);
+};
+
+/** @function getPageContent 
+ * Takes in a request with query params. It will use the settings specified by them to fetch matching pages' metadata and complete content.
+ * key query params:
+ * pid - page id
+ * relpath
+ * title
+ * query params that are modifiers:
+ * @todo partial - if set to true the query will match values that include the provided arg. Does not work for page id.
+ * The first two are unique and will return only a single document. If you use both and they're not for the same document no document will be returned. Title may be used by various documents
+ * @todo format relpath to ensure it always begins with forward slash
+ * @todo all data returned vs selection
+ * @todo return {css_selection: content} as key : value 🍀
+*/
+exports.getPageContent = async (req, res, next) => {
+    // take accepted query args off of the request object
+    let { pid, relpath: rel_path , title, partial } = req.query;
+    let _id;
+    if (pid) {
+        if (mgIdIsValid(pid)) {
+            _id = ObjectId(pid);
+        }
+        else {
+            throw new Error('Invalid page id');
+        }
+    }
+    if (rel_path) {
+        rel_path = formatRelPath(rel_path);
+    }
+    // add query args to a new object
+    const args = { _id, rel_path, title };
+    // loop through object and build query
+    const query = {};
+    for (arg in args) {
+        const val = args[arg];
+        if (val) {
+            query[arg] = val;
+        }
+    }
+    console.log(query);
+    // check there is a query. Prevent a query without it, which would return all pages.
+    if (Object.keys(query).length) {
+        const pages = await Page.find(query);
+        res.json(pages);
+    }
+    else res.status(200).send('200 OK. No matches found');
 };
 
 

@@ -40,3 +40,11 @@ exports.deleteEmptyFields = (obj) => {
   });
   return newObj;
 };
+
+/** @function formatRelPath
+ *  @param {string} relpath
+ *  @returns a relative path that consistently has a preceding forward slash
+ */
+exports.formatRelPath = (relpath) => {
+  return (relpath[0] === "/") ? relpath : `/${relpath}`;
+};

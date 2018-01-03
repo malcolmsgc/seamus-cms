@@ -1,6 +1,4 @@
-/** @module index.js exports router object
- *  @summary holds routes for app. Routes include: 
- * GET calls for page renders
+/** @module api.js exports router object that builds on /api/v[version]/
  */
 
 const express = require('express');
@@ -17,5 +15,9 @@ const { catchErrors } = require('../handlers/errorHandlers');
 // router.all('*', apiAuth);
 
 router.get('/search', catchErrors(pageController.siteSearch) );
+router.get('/page', catchErrors(pageController.getPageContent) );
+// router.get('/content', catchErrors(pageController.siteSearch) );
+// router.get('/site', catchErrors(pageController.siteSearch) );
+// router.get('/content', catchErrors(pageController.siteSearch) );
 
 module.exports = router;
