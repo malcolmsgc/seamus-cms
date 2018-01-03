@@ -545,18 +545,17 @@ exports.siteSearch = async (req, res, next) => {
 /** @function getPageContent 
  * Takes in a request with query params. It will use the settings specified by them to fetch matching pages' metadata and complete content.
  * key query params:
- * pid - page id
- * relpath
- * title
- * query params that are modifiers:
- * prune - return all fields or pared down selection. Pruned by default. Set to 'false' if you require all fields.
- * @todo partial - if set to true the query will match values that include the provided arg. Does not work for page id.
+ * -pid - page id
+ * -relpath
+ * -title
  * The first two are unique and will return only a single document. If you use both and they're not for the same document no document will be returned. Title may be used by various documents
- * @todo return {css_selection: content} as key : value 🍀
+ * query params that are modifiers:
+ * -prune - return all fields or pared down selection. Pruned by default. Set to 'false' if you require all fields.
+ * -partmatch - if set to 'true' the query will match values that include the provided arg. Does not work for page id.
 */
 exports.getPageContent = async (req, res, next) => {
     // take accepted query args off of the request object
-    let { pid, relpath: rel_path , title, prune } = req.query;
+    let { pid, relpath: rel_path , title, prune, partmatch } = req.query;
     let _id;
     if (pid) {
         if (mgIdIsValid(pid)) {
@@ -574,14 +573,18 @@ exports.getPageContent = async (req, res, next) => {
     // loop through object and build query
     const query = {};
     for (arg in args) {
-        const val = args[arg];
+        let val = args[arg];
         if (val) {
+            // apply partial match if set to true
+            if (partmatch && partmatch === 'true' && arg !== '_id') {
+                val = new RegExp(val);
+            }
             query[arg] = val;
         }
     }
-    console.log(query);
     // check there is a query. Prevent a query without it, which would return all pages.
     if (Object.keys(query).length) {
+        // apply prune
         let selection, contentSelection;
         if (prune && prune === 'false') {
             selection = '';
@@ -590,7 +593,8 @@ exports.getPageContent = async (req, res, next) => {
         else {
             selection = 'title subtitle last_published';
             contentSelection = 'content index';
-        } 
+        }
+        // Apply query
         const pages = await Page.find(query)
             .populate({
                 path: 'content',

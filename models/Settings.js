@@ -59,6 +59,10 @@ const settingsSchema = new Schema({
         type: Boolean,
         required: 'Single- / multi-page setting not set',
         default: false
+    },
+    globalsPage: {
+        type: Schema.ObjectId,
+        ref: 'Page'
     }
 },{ id: false }); //prevent auto generation of id to have more control in restricting collection to a single document
 
