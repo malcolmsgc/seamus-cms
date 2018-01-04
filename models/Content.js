@@ -89,8 +89,7 @@ const contentSchema = new Schema({
         // unique: true
     },
     content: {
-        type: String,
-        default: ''
+        type: String
     },
     dirname: {
         type: String,

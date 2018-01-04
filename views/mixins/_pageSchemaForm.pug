@@ -1,7 +1,9 @@
 //- include _contentSectionForm
 
 mixin pageSchemaForm(page = {})
+    - const firstsave = page.content ? '0' : '1'
     form.form(name="page_schema" action=`/schema/${page._id}` method="POST")
+        input(type="hidden" name="firstsave" value=firstsave)
         p Choose what content to manage
         //- +contentSectionForm(Date.now())
         if page.content
@@ -10,7 +12,6 @@ mixin pageSchemaForm(page = {})
         else
             include ../includes/_contentSectionForm
             //- subsequent form sections added on button click. See addContentSection.js in public/javascripts/modules. Because PUG compiles before runtime manipulating the DOM with PUG isn't doable in any other way I could think of
-
         button(type="button" id="addSectionBtn") 
             != h.icon('add')
             span Add section

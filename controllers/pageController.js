@@ -321,6 +321,9 @@ exports.savePageSchema = async (req, res, next) => {
     // If only one content section to save pass to next function: SavePageSchemaSingle
     // This is because multi-section save uses array methods that fail on a Number
     // SavePageSchemaSingle performs a single operation DB query whereas savePageSchema performs a bulk one
+    // save firstsave flag used to route to appropriate query then delete to avoid inteference. Currently doesn't interfere but removed to make life simpler in future
+    const firstsave = parseInt(req.body.firstsave);
+    delete req.body.firstsave;
     if (req.singleSectionSave) {
         next()
         return;
@@ -380,8 +383,18 @@ exports.savePageSchema = async (req, res, next) => {
         const vErr = mgDoc.validateSync();
         // push into validation errors array if error returned
         if (vErr) mgValidationErrors.push(vErr);
-        // add to reduce's accumulator array
-        docs.push(mgDoc);
+        //transform doc to create a $set to handle resaves after addition of content
+        // firstsave should be 1 on schema creation and evaluate truthy 
+        if (firstsave) {
+
+        }
+        else {
+            const newDoc = { _id: mgDoc._id };
+            delete mgDoc._id;
+            newDoc.$set = mgDoc;
+            // add to reduce's accumulator array
+            docs.push(newDoc);
+        } 
         return docs;
     }, []);
     if (mgValidationErrors.length) {
@@ -394,8 +407,8 @@ exports.savePageSchema = async (req, res, next) => {
         return;
     }
     // TEST IT'S WORKING -- Next 2 lines
-    // res.json(documents);
-    // return;
+    res.json(documents);
+    return;
     const bulkResponse = await bulkSave(documents, Content, '_id');
     if (bulkResponse.writeErrors) {
         console.error('Write error within pageController.savePageSchema using bulkSave function' + bulkResponse.writeErrors);
