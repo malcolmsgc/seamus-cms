@@ -386,7 +386,8 @@ exports.savePageSchema = async (req, res, next) => {
         //transform doc to create a $set to handle resaves after addition of content
         // firstsave should be 1 on schema creation and evaluate truthy 
         if (firstsave) {
-
+            // add to reduce's accumulator array
+            docs.push(mgDoc);
         }
         else {
             const newDoc = { _id: mgDoc._id };
@@ -407,9 +408,15 @@ exports.savePageSchema = async (req, res, next) => {
         return;
     }
     // TEST IT'S WORKING -- Next 2 lines
-    res.json(documents);
-    return;
-    const bulkResponse = await bulkSave(documents, Content, '_id');
+    // res.json(documents);
+    // return;
+    let bulkResponse;
+    if (firstsave) {
+        bulkResponse = await bulkSave(documents, Content, '_id');
+    }
+    else {
+        bulkResponse = await bulkSave(documents, Content, '_id', false);
+    }
     if (bulkResponse.writeErrors) {
         console.error('Write error within pageController.savePageSchema using bulkSave function' + bulkResponse.writeErrors);
         const err = new Error('Error saving. Please try again. If error persists please contact an administrator.');
