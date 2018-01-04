@@ -15,7 +15,7 @@ const { catchErrors } = require('../handlers/errorHandlers');
 // router.all('*', apiAuth);
 
 router.get('/search', catchErrors(pageController.siteSearch) );
-router.get('selectors/page', catchErrors(pageController.getPageContentBySelectors) );
+router.get('/selectors/page', catchErrors(pageController.getPageContentBySelectors) );
 router.get('/page', catchErrors(pageController.getPageContent) );
 // router.get('/content', catchErrors(pageController.siteSearch) );
 // router.get('/site', catchErrors(pageController.siteSearch) );

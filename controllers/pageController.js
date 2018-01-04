@@ -69,11 +69,13 @@ exports.massageRawContent = (req, res, next) => {
     const newBody = {...req.body};
     const idArr = Object.keys(newBody);
     const docsArr = [];
+    let image_ids = newBody.image_ids;
+    image_ids = typeof image_ids === 'string' ? [ image_ids ] : image_ids;
     for (const key of idArr) {
         // handle images as a special case. Use 'images' array as this will only appear when new images selected by user
         if (key === "images") {
             // loop through image_ids array and match up with content in images array
-            newBody.image_ids.forEach( (id, index) => {
+            image_ids.forEach( (id, index) => {
                 const filename = newBody.images[index];
                 if (filename) {
                     const doc = {};
@@ -550,8 +552,8 @@ exports.siteSearch = async (req, res, next) => {
  * -title
  * The first two are unique and will return only a single document. If you use both and they're not for the same document no document will be returned. Title may be used by various documents
  * query params that are modifiers:
- * -prune - return all fields or pared down selection. Pruned by default. Set to 'false' if you require all fields.
- * -partmatch - if set to 'true' the query will match values that include the provided arg. Does not work for page id.
+ * -prune - return all fields or pared down selection. Pruned by default. Set to 'false' if you require all fields. Set to 'selector' to return only css selectors and content.
+ * -partmatch - if set to 'true' the query will match values that include the provided arg. This will also make the query case insensitive. Does not work for page id.
 */
 exports.getPageContent = async (req, res, next) => {
     // take accepted query args off of the request object
@@ -562,7 +564,7 @@ exports.getPageContent = async (req, res, next) => {
             _id = ObjectId(pid);
         }
         else {
-            throw new Error('Invalid page id');
+            throw new Error('Error: Invalid page id');
         }
     }
     if (rel_path) {
@@ -577,7 +579,7 @@ exports.getPageContent = async (req, res, next) => {
         if (val) {
             // apply partial match if set to true
             if (partmatch && partmatch === 'true' && arg !== '_id') {
-                val = new RegExp(val);
+                val = new RegExp(val, 'i');
             }
             query[arg] = val;
         }
@@ -589,6 +591,10 @@ exports.getPageContent = async (req, res, next) => {
         if (prune && prune === 'false') {
             selection = '';
             contentSelection = '-rules';
+        }
+        else if (prune && prune.includes('selector')) {
+            selection = '_id';
+            contentSelection = 'content css_selector';
         }
         else {
             selection = 'title subtitle last_published';
@@ -606,7 +612,38 @@ exports.getPageContent = async (req, res, next) => {
     else res.status(200).send('200 OK. No matches found');
 };
 
-exports.getPageContentBySelectors = () => {
-    return;
+
+/** @function getPageContentBySelectors 
+ * Takes in a request with query params. It will use the settings specified by them to fetch matching pages' metadata and complete content.
+ * key query params:
+ * -pid - page id
+ * -relpath
+ * -title
+ * The first two are unique and will return only a single document. If you use both and they're not for the same document no document will be returned. Title may be used by various documents
+ * query params that are modifiers:
+ * -prune - return all fields or pared down selection. Pruned by default. Set to 'false' if you require all fields.
+ * -partmatch - if set to 'true' the query will match values that include the provided arg. Does not work for page id.
+*/
+exports.getPageContentBySelectors = async (req, res, next) => {
+    let query = { title: 'My blog' };
+    const pages = await Page.aggregate([
+        { $match: query },
+        { $lookup: { from: 'contents',
+            localField: '_id',
+            foreignField: 'page',
+            as: 'content'
+        }},
+        { $unwind: '$content' },
+        { $group: { 
+            _id : '$content.css_selector',
+            content : { $push: '$$ROOT.content.content' }
+        }}
+    ]);
+    res.json(pages);
+
 };
 
+exports.getPageContentById = async (req, res, next) => {
+    const alt = await Content.find(page).select('css_selector content')
+    res.json(alt);
+}
