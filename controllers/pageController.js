@@ -321,13 +321,13 @@ exports.savePageSchema = async (req, res, next) => {
     // If only one content section to save pass to next function: SavePageSchemaSingle
     // This is because multi-section save uses array methods that fail on a Number
     // SavePageSchemaSingle performs a single operation DB query whereas savePageSchema performs a bulk one
-    // save firstsave flag used to route to appropriate query then delete to avoid inteference. Currently doesn't interfere but removed to make life simpler in future
-    const firstsave = parseInt(req.body.firstsave);
-    delete req.body.firstsave;
     if (req.singleSectionSave) {
         next()
         return;
     }
+    // save firstsave flag used to route to appropriate query then delete to avoid inteference. Currently doesn't interfere but removed to make life simpler in future
+    const firstsave = parseInt(req.body.firstsave);
+    delete req.body.firstsave;
     // Continue with multi document handling
     // take copy of submitted form
     const contentSchema = { ...req.body };
@@ -440,6 +440,9 @@ exports.savePageSchema = async (req, res, next) => {
 };
 
 exports.savePageSchemaSingle = async (req, res, next) => {
+    console.log(req.body.firstsave);
+    const firstsave = parseInt(req.body.firstsave);
+    delete req.body.firstsave;
     const contentSchema = { ...req.body };
     // assign content section index
     contentSchema.index = parseInt(contentSchema.index) || 0;
@@ -449,7 +452,19 @@ exports.savePageSchemaSingle = async (req, res, next) => {
         console.log(`new Mongo ID added: ${doc._id}`);
     }
     doc = deleteEmptyFields(doc);
-    const result = await Content.findOneAndUpdate({ _id: doc._id }, doc, { upsert: true, new: true, runValidators: true }).exec();
+    console.log(firstsave);
+    console.log(doc);
+    let result;
+    if (firstsave) {
+        result = await Content.findOneAndUpdate({ _id: doc._id }, doc, { upsert: true, new: true, runValidators: true }).exec();
+    }
+    else {
+        const DocId = doc._id;
+        delete doc._id;
+        const newDoc = { $set: {...doc}};
+        result = await Content.findOneAndUpdate({ _id: DocId }, newDoc, { new: true, runValidators: true }).exec();
+        console.log(result);
+    }
     req.flash('success', `Page content settings saved`);
     res.redirect(`/page/${req.params.pageId}`);
 }
