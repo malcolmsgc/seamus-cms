@@ -87,9 +87,7 @@ exports.massageRawContent = (req, res, next) => {
                 if (filename) {
                     const doc = {};
                     doc._id = ObjectId(id);
-                    doc.dirname = dirname;
-                    const content = filename;
-                    doc.$set = { content };
+                    doc['$set'] = { 'content': filename, dirname };
                     docsArr.push(doc);
                 }
             } );
@@ -99,7 +97,7 @@ exports.massageRawContent = (req, res, next) => {
         else {
             const doc = {};
             doc._id = ObjectId(key);
-            doc.$set = { content: `${newBody[key][0]}` };
+            doc['$set'] = { 'content': `${newBody[key][0]}` };
             docsArr.push(doc); 
         }
     }
