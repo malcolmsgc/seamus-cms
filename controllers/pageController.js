@@ -625,25 +625,25 @@ exports.getPageContent = async (req, res, next) => {
  * -partmatch - if set to 'true' the query will match values that include the provided arg. Does not work for page id.
 */
 exports.getPageContentBySelectors = async (req, res, next) => {
-    let query = { title: 'My blog' };
-    const pages = await Page.aggregate([
-        { $match: query },
-        { $lookup: { from: 'contents',
-            localField: '_id',
-            foreignField: 'page',
-            as: 'content'
+    let query = { 'page.title': 'My blog' };
+    const pages = await Content.aggregate([
+        { $lookup: { from: 'pages',
+        localField: 'page',
+        foreignField: '_id',
+        as: 'page'
         }},
-        { $unwind: '$content' },
-        { $group: { 
-            _id : '$content.css_selector',
-            content : { $push: '$$ROOT.content.content' }
+        { $match: query },
+        { $project: { 
+            _id : 0,
+            content : 1,
+            css_selector: 1
         }}
     ]);
     res.json(pages);
 
 };
 
-exports.getPageContentById = async (req, res, next) => {
-    const alt = await Content.find(page).select('css_selector content')
-    res.json(alt);
-}
+// exports.getPageContentById = async (req, res, next) => {
+//     const alt = await Content.find(page).select('css_selector content')
+//     res.json(alt);
+// }
