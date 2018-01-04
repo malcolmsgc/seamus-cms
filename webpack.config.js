@@ -2,7 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const autoprefixer = require('autoprefixer');
-const pugHtmlLoader = require('pug-html-loader');
+require('pug-html-loader');
 
 // This is our JavaScript rule that specifies what to do with .js files
 const javascript = {

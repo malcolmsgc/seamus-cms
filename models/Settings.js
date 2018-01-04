@@ -42,10 +42,19 @@ const settingsSchema = new Schema({
         required: 'A site name is required',
         trim: true
     },
-    root_path: {
+    site_host: {
         type: String,
         trim: true,
-        required: 'A root path (usually the domain name) is required',
+        required: 'A base URL for the site being content managed is required. It must include a host name.',
+        validate: {
+            validator: validator.isURL,
+            message: 'Must be url that includes hostname'
+        }
+    },
+    seamus_host: {
+        type: String,
+        trim: true,
+        required: 'A base URL for Seamus is required. It must include a host name.',
         validate: {
             validator: validator.isURL,
             message: 'Must be url that includes hostname'

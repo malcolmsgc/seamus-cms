@@ -30,6 +30,7 @@ const imgUploadOptions = {
 exports.imgUpload = multer(imgUploadOptions).array('image');
 
 exports.imgWrite = async (req, res, next) => {
+    const dirname = '/public/uploads/gallery/originals/';
     if (!req.files.length) {
         next();
         return;
@@ -47,7 +48,7 @@ exports.imgWrite = async (req, res, next) => {
             if (photo.bitmap.width > 5120) {
                 await photo.resize(5120, jimp.AUTO);
             };
-            await photo.write(`./public/uploads/gallery/originals/${filename}`);
+            await photo.write(`.${dirname}${filename}`);
         }
         catch (err) {
             errors.push(err);
@@ -55,6 +56,7 @@ exports.imgWrite = async (req, res, next) => {
         }
     });
     req.body.images = images;
+    req.body.dirname = dirname;
     if (errors.length) {
         errors.forEach((err) => req.flash('error', err.message));
         res.redirect('back');
@@ -67,6 +69,8 @@ exports.imgWrite = async (req, res, next) => {
 /** @todo santize, esp important as bulk operations bypass moongoose validators and cannot run them independatly in this case without much more faff */
 exports.massageRawContent = (req, res, next) => {
     const newBody = {...req.body};
+    let dirname = newBody.dirname;
+    delete newBody.dirname;
     const idArr = Object.keys(newBody);
     const docsArr = [];
     let image_ids = newBody.image_ids;
@@ -75,11 +79,15 @@ exports.massageRawContent = (req, res, next) => {
         // handle images as a special case. Use 'images' array as this will only appear when new images selected by user
         if (key === "images") {
             // loop through image_ids array and match up with content in images array
+            /** @todo stop content being wiped when editing page's content schema
+             * @todo Mongo suddenly squealing about $set
+             */
             image_ids.forEach( (id, index) => {
                 const filename = newBody.images[index];
                 if (filename) {
                     const doc = {};
                     doc._id = ObjectId(id);
+                    doc.dirname = dirname;
                     const content = filename;
                     doc.$set = { content };
                     docsArr.push(doc);
@@ -545,14 +553,14 @@ exports.siteSearch = async (req, res, next) => {
 };
 
 /** @function getPageContent 
- * Takes in a request with query params. It will use the settings specified by them to fetch matching pages' metadata and complete content.
+ * Takes in a request with query params. It will use the settings specified by them to fetch matching pages' metadata and content.
  * key query params:
  * -pid - page id
  * -relpath
  * -title
  * The first two are unique and will return only a single document. If you use both and they're not for the same document no document will be returned. Title may be used by various documents
  * query params that are modifiers:
- * -prune - return all fields or pared down selection. Pruned by default. Set to 'false' if you require all fields. Set to 'selector' to return only css selectors and content.
+ * -prune - return all fields or pared down selection. Pruned by default. Set to 'false' if you require all fields.
  * -partmatch - if set to 'true' the query will match values that include the provided arg. This will also make the query case insensitive. Does not work for page id.
 */
 exports.getPageContent = async (req, res, next) => {
@@ -592,10 +600,6 @@ exports.getPageContent = async (req, res, next) => {
             selection = '';
             contentSelection = '-rules';
         }
-        else if (prune && prune.includes('selector')) {
-            selection = '_id';
-            contentSelection = 'content css_selector';
-        }
         else {
             selection = 'title subtitle last_published';
             contentSelection = 'content index';
@@ -614,36 +618,47 @@ exports.getPageContent = async (req, res, next) => {
 
 
 /** @function getPageContentBySelectors 
- * Takes in a request with query params. It will use the settings specified by them to fetch matching pages' metadata and complete content.
+ * Takes in a request with query params. It will use the settings specified by them to fetch matching pages' content and css selector pairs.
  * key query params:
  * -pid - page id
  * -relpath
  * -title
  * The first two are unique and will return only a single document. If you use both and they're not for the same document no document will be returned. Title may be used by various documents
  * query params that are modifiers:
- * -prune - return all fields or pared down selection. Pruned by default. Set to 'false' if you require all fields.
  * -partmatch - if set to 'true' the query will match values that include the provided arg. Does not work for page id.
 */
 exports.getPageContentBySelectors = async (req, res, next) => {
-    let query = { 'page.title': 'My blog' };
-    const pages = await Content.aggregate([
-        { $lookup: { from: 'pages',
-        localField: 'page',
-        foreignField: '_id',
-        as: 'page'
-        }},
-        { $match: query },
-        { $project: { 
-            _id : 0,
-            content : 1,
-            css_selector: 1
-        }}
-    ]);
-    res.json(pages);
-
+    let { pid, relpath: rel_path , title, partmatch } = req.query;
+    let _id;
+    if (pid) {
+        if (mgIdIsValid(pid)) {
+            _id = ObjectId(pid);
+        }
+        else {
+            throw new Error('Error: Invalid page id');
+        }
+    }
+    if (rel_path) {
+        rel_path = formatRelPath(rel_path);
+    }
+    // add query args to a new object
+    const args = { _id, rel_path, title };
+    // loop through object and build query
+    const query = {};
+    for (arg in args) {
+        let val = args[arg];
+        if (val) {
+            // apply partial match if set to true
+            if (partmatch && partmatch === 'true' && arg !== '_id') {
+                val = new RegExp(val, 'i');
+            }
+            query[`page.${arg}`] = val;
+        }
+    }
+    // check there is a query. Prevent a query without it, which would return all pages.
+    if (Object.keys(query).length) {
+        const content = await Content.getPageContentBySelectors(query);
+        res.json(content);
+    }
+    else res.status(200).send('200 OK. No matches found');
 };
-
-// exports.getPageContentById = async (req, res, next) => {
-//     const alt = await Content.find(page).select('css_selector content')
-//     res.json(alt);
-// }

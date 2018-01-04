@@ -91,6 +91,21 @@ const contentSchema = new Schema({
     content: {
         type: String,
         default: ''
+    },
+    dirname: {
+        type: String,
+        validate: {
+            validator: validator.isURL,
+            options: {
+                require_tld: false,
+                require_protocol: false,
+                require_host: false,
+                require_valid_protocol: false,
+                allow_underscores: true,
+                allow_protocol_relative_urls: true 
+            },
+            message: 'A valid URL path is required. Omit protocol, host and filename.'
+        }
     }
 });
 
@@ -98,6 +113,22 @@ contentSchema.index({
     title: 'text',
     content: 'text'
 });
+
+contentSchema.statics.getPageContentBySelectors = function (query) {
+    return this.aggregate([
+        { $lookup: { from: 'pages',
+        localField: 'page',
+        foreignField: '_id',
+        as: 'page'
+        }},
+        { $match: query },
+        { $project: { 
+            _id : 0,
+            content : 1,
+            css_selector: 1
+        }}
+    ]);
+};
 
 contentSchema.plugin(beautifyUnique);
 
