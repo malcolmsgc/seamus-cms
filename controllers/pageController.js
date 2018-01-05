@@ -592,7 +592,8 @@ exports.getPageContent = async (req, res, next) => {
             _id = ObjectId(pid);
         }
         else {
-            throw new Error('Error: Invalid page id');
+            res.status(400).send('Error: Invalid page id');
+            return;
         }
     }
     if (rel_path) {
@@ -679,6 +680,62 @@ exports.getPageContentBySelectors = async (req, res, next) => {
     if (Object.keys(query).length) {
         const content = await Content.getPageContentBySelectors(query);
         res.json(content);
+    }
+    else res.status(200).send('200 OK. No matches found');
+};
+
+/** partmatch, prune - 0 or 1 */
+exports.getContentSection = async (req, res, next) => {
+    // take accepted query args off of the request object and set defaults
+    let { cid, title, selector, prune = 1, partmatch = 0 } = req.query;
+    // turn vals to be assessed for truthiness into integers
+    prune = parseInt(req.query.prune);
+    partmatch = parseInt(req.query.partmatch);
+    // check types
+    [ prune, partmatch ].forEach((val) => {
+        if ( val && typeof val !== 'number') {
+            res.status(400).send(`Error: A query parameter's value was incorrectly formatted`)
+            return;
+        }
+    });
+    let _id;
+    if (cid) {
+        if (mgIdIsValid(cid)) {
+            _id = ObjectId(cid);
+        }
+        else {
+            res.status(400).send('Error: Invalid content id');
+            return;
+        }
+    }
+    // add query args to a new object
+    const args = { _id, title, selector };
+    // loop through object and build query
+    const query = {};
+    for (arg in args) {
+        let val = args[arg];
+        if (val) {
+            // apply partial match if set to true
+            if (partmatch && arg !== '_id') {
+                val = new RegExp(val, 'i');
+            }
+            query[arg] = val;
+        }
+    }
+    // check there is a query. Prevent a query without it, which would return all pages.
+    if (Object.keys(query).length) {
+        // apply prune
+        let selection, contentSelection;
+        if (prune) {
+            selection = 'content index';
+        }
+        else {
+            selection = '-rules';
+        }
+        // Apply query
+        const pages = await Content.find(query)
+            .select(selection);
+        res.json(pages);
     }
     else res.status(200).send('200 OK. No matches found');
 };
