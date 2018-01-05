@@ -575,17 +575,36 @@ exports.siteSearch = async (req, res, next) => {
 /** @function getPageContent 
  * Takes in a request with query params. It will use the settings specified by them to fetch matching pages' metadata and content.
  * key query params:
- * -pid - page id
- * -relpath
- * -title
+ * -> pid - page id
+ * -> relpath
+ * -> title
  * The first two are unique and will return only a single document. If you use both and they're not for the same document no document will be returned. Title may be used by various documents
- * query params that are modifiers:
- * -prune - return all fields or pared down selection. Pruned by default. Set to 'false' if you require all fields.
- * -partmatch - if set to 'true' the query will match values that include the provided arg. This will also make the query case insensitive. Does not work for page id.
-*/
+ * -> partmatch - if set to positive integer the query will match values that include the provided arg. Does not work for page id. Defaults to false.
+ * -> prune - return pruned or full results. Defaults to pruned results.
+ * modifier accepted values:
+ * -> 0 - this indicates false or off
+ * -> 1 (or any positive integer) - this indicates true or on 
+ */
 exports.getPageContent = async (req, res, next) => {
     // take accepted query args off of the request object
-    let { pid, relpath: rel_path , title, prune, partmatch } = req.query;
+    let { pid, relpath: rel_path , title, prune = 1, partmatch = 0 } = req.query;
+    // turn vals to be assessed for truthiness into integers
+    prune = parseInt(prune);
+    partmatch = parseInt(partmatch);
+    // check types
+    const paramTypeErr = [ prune, partmatch ].reduce((accum, val) => {
+        let err;
+        if (isNaN(val) || typeof val !== 'undefined' && typeof val !== 'number') {
+            err = true;
+        }
+        return accum || err;
+    }, false);
+    if (paramTypeErr) {
+        const err = new Error("Error: A query parameter's value was incorrectly formatted");
+        err.status = 400;
+        next(err);
+        return;
+    };
     let _id;
     if (pid) {
         if (mgIdIsValid(pid)) {
@@ -609,7 +628,7 @@ exports.getPageContent = async (req, res, next) => {
         let val = args[arg];
         if (val) {
             // apply partial match if set to true
-            if (partmatch && partmatch === 'true' && arg !== '_id') {
+            if (partmatch && arg !== '_id') {
                 val = new RegExp(val, 'i');
             }
             query[arg] = val;
@@ -619,7 +638,7 @@ exports.getPageContent = async (req, res, next) => {
     if (Object.keys(query).length) {
         // apply prune
         let selection, contentSelection;
-        if (prune && prune === 'false') {
+        if (prune === 'false') {
             selection = '';
             contentSelection = '-rules';
         }
