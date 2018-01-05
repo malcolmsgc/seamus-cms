@@ -113,7 +113,9 @@ contentSchema.index({
     content: 'text'
 });
 
-contentSchema.statics.getPageContentBySelectors = function (query) {
+contentSchema.statics.getContentBySelectors = function (query) {
+    query = query || {};
+    console.log(query);
     return this.aggregate([
         { $lookup: { from: 'pages',
         localField: 'page',

@@ -648,10 +648,13 @@ exports.getPageContent = async (req, res, next) => {
  * -title
  * The first two are unique and will return only a single document. If you use both and they're not for the same document no document will be returned. Title may be used by various documents
  * query params that are modifiers:
- * -partmatch - if set to 'true' the query will match values that include the provided arg. Does not work for page id.
+ * -> partmatch - if set to positive integer the query will match values that include the provided arg. Does not work for page id. Defaults to false.
+ * modifier accepted values:
+ * -> 0 - this indicates false or off
+ * -> 1 (or any positive integer) - this indicates true or on 
 */
 exports.getPageContentBySelectors = async (req, res, next) => {
-    let { pid, relpath: rel_path , title, partmatch } = req.query;
+    let { pid, relpath: rel_path , title, partmatch = 0 } = req.query;
     let _id;
     if (pid) {
         if (mgIdIsValid(pid)) {
@@ -664,6 +667,15 @@ exports.getPageContentBySelectors = async (req, res, next) => {
             return;
         }
     }
+    // turn vals to be assessed for truthiness into integers
+    partmatch = parseInt(partmatch);
+    // check types
+    if (isNaN(partmatch) || typeof partmatch !== 'undefined' && typeof partmatch !== 'number') {
+        const err = new Error("Error: A query parameter's value was incorrectly formatted");
+        err.status = 400;
+        next(err);
+        return;
+    };
     if (rel_path) {
         rel_path = formatRelPath(rel_path);
     }
@@ -675,18 +687,28 @@ exports.getPageContentBySelectors = async (req, res, next) => {
         let val = args[arg];
         if (val) {
             // apply partial match if set to true
-            if (partmatch && partmatch === 'true' && arg !== '_id') {
+            if (partmatch && arg !== '_id') {
                 val = new RegExp(val, 'i');
+                console.log(val);
             }
             query[`page.${arg}`] = val;
         }
     }
     // check there is a query. Prevent a query without it, which would return all pages.
     if (Object.keys(query).length) {
-        const content = await Content.getPageContentBySelectors(query);
+        const content = await Content.getContentBySelectors(query);
         res.json(content);
     }
     else res.status(200).send('200 OK. No matches found');
+};
+
+
+/** @function getSiteContentBySelectors 
+ * @returns array of objects. Objects include css_selector and content fields.
+*/
+exports.getSiteContentBySelectors = async (req, res, next) => {
+    const content = await Content.getContentBySelectors();
+    res.json(content);
 };
 
 /** @function getContentSection 
