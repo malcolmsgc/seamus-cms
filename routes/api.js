@@ -24,6 +24,6 @@ router.get('/selectors/page', catchErrors(pageController.getPageContentBySelecto
 router.get('/page', catchErrors(pageController.getPageContent) );
 router.get('/content', catchErrors(pageController.getContentSection) );
 // router.get('/content/:type', catchErrors(pageController.getContentByType) );
-// router.get('/site', catchErrors(pageController.getSiteContent) );
+router.get('/site', catchErrors(pageController.getSiteContent) );
 
 module.exports = router;

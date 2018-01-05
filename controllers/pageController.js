@@ -689,7 +689,20 @@ exports.getPageContentBySelectors = async (req, res, next) => {
     else res.status(200).send('200 OK. No matches found');
 };
 
-/** partmatch, prune - 0 or 1 */
+/** @function getContentSection 
+ * Takes in a request with query params. It will use the settings specified by them to fetch matching content documents.
+ * key query params:
+ * -cid - content id
+ * -title
+ * -selector - css_selector if one is assigned
+ * cid is unique and will return only a single document. Title and selector may not be unique and could return mulitple documents
+ * query params that are modifiers:
+ * -partmatch - if set to positive integer the query will match values that include the provided arg. Does not work for page id. Defaults to false.
+ * -prune - return pruned or full results. Defaults to pruned results.
+ * modifier accepted values:
+ * 0 - this indicates false or off
+ * 1 (or any positive integer) - this indicates true or on 
+ */
 exports.getContentSection = async (req, res, next) => {
     // take accepted query args off of the request object and set defaults
     let { cid, title, selector, prune = '1', partmatch = '0' } = req.query;
@@ -711,7 +724,6 @@ exports.getContentSection = async (req, res, next) => {
         next(err);
         return;
     };
-    console.log('after');
     let _id;
     if (cid) {
         if (mgIdIsValid(cid)) {
