@@ -517,16 +517,21 @@ exports.deletePage = async (req, res, next) => {
 
 /** @function siteSearch
  *  @param {string} s - search string used to query database documents
- *  @param {string} deep - flag for whether a deep or shallow search is performed. Must be set to 'true' for deep search.
  * Function takes in request object with a string of search terms that follow rules of MongoDB search terms (@see https://docs.mongodb.com/manual/text-search/). If deep flag is set to 'true' a deep search will be performed. Otherwise a shallow search will be performed, i.e. this is default.
+ *  * modifier query params:
+ * -> partmatch - if set to positive integer the query will match values that include the provided arg. Does not work for page id. Defaults to false.
+ * -> @param {string} deep - flag for whether a deep or shallow search is performed. Default is shallow
+ * -> 0 - this indicates false or off
+ * -> 1 (or any positive integer) - this indicates true or on 
  * @returns search results from pages and contents collections ranked by textscore. Shallow search returns only page results: title, subtitle, relative path, textscore. Deep search also returns results from the contents collection. In short, the shallow search provides an array of matches with page title, subtitle, and rel_path. Deep search provides those (in the pagemeta object) as well as an array of results from the actual content (in the content object).
  * 
  * The function is used in Seamus' site search but this is also available for use within the managed site to provide a search feature.
  *  
  */
 exports.siteSearch = async (req, res, next) => {
-    const searchString = req.query.s;
-    const deep = req.query.deep === 'true';
+    const searchString = req.query.s || "";
+    //parse modifier params that use truthiness for evaluations. Failure to parse will produce NaN and eval to false.
+    const deep = parseInt(req.query.deep);
     const shallowSearch = Page.find({
         $text: {
             $search: searchString,
@@ -579,6 +584,7 @@ exports.siteSearch = async (req, res, next) => {
  * -> relpath
  * -> title
  * The first two are unique and will return only a single document. If you use both and they're not for the same document no document will be returned. Title may be used by various documents
+ * modifier query params:
  * -> partmatch - if set to positive integer the query will match values that include the provided arg. Does not work for page id. Defaults to false.
  * -> prune - return pruned or full results. Defaults to pruned results.
  * modifier accepted values:
