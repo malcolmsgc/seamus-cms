@@ -692,22 +692,21 @@ exports.getPageContentBySelectors = async (req, res, next) => {
 /** @function getContentSection 
  * Takes in a request with query params. It will use the settings specified by them to fetch matching content documents.
  * key query params:
- * -cid - content id
- * -title
- * -selector - css_selector if one is assigned
+ * -> cid - content id
+ * -> title
+ * -> selector - css_selector if one is assigned
  * cid is unique and will return only a single document. Title and selector may not be unique and could return mulitple documents
  * query params that are modifiers:
- * -partmatch - if set to positive integer the query will match values that include the provided arg. Does not work for page id. Defaults to false.
- * -prune - return pruned or full results. Defaults to pruned results.
+ * -> partmatch - if set to positive integer the query will match values that include the provided arg. Does not work for page id. Defaults to false.
+ * -> prune - return pruned or full results. Defaults to pruned results.
  * modifier accepted values:
- * 0 - this indicates false or off
- * 1 (or any positive integer) - this indicates true or on 
+ * -> 0 - this indicates false or off
+ * -> 1 (or any positive integer) - this indicates true or on 
  */
 exports.getContentSection = async (req, res, next) => {
     // take accepted query args off of the request object and set defaults
     let { cid, title, selector, prune = '1', partmatch = '0' } = req.query;
     // turn vals to be assessed for truthiness into integers
-    console.log({prune, partmatch});
     prune = parseInt(prune);
     partmatch = parseInt(partmatch);
     // check types
@@ -753,7 +752,7 @@ exports.getContentSection = async (req, res, next) => {
     // check there is a query. Prevent a query without it, which would return all pages.
     if (Object.keys(query).length) {
         // apply prune
-        let selection, contentSelection;
+        let selection;
         if (prune) {
             selection = 'content index';
         }
@@ -761,9 +760,69 @@ exports.getContentSection = async (req, res, next) => {
             selection = '-rules';
         }
         // Apply query
-        const pages = await Content.find(query)
+        const content = await Content.find(query)
             .select(selection);
-        res.json(pages);
+        res.json(content);
     }
     else res.status(200).send('200 OK. No matches found');
 };
+
+/** @function getSiteContent 
+ * Similar to getContentSection but returns all content held by Seamus. You can filter by the type of content to be returned.
+ * key query params:
+ * -> ctype - content type
+ * possible values:
+ * -> heading
+ * -> text
+ * -> alltext - returns both text and heading types
+ * -> image
+ * query params that are modifiers:
+ * -> prune - return pruned or full results. Defaults to pruned results.
+ * modifier accepted values:
+ * -> 0 - this indicates false or off
+ * -> 1 (or any positive integer) - this indicates true or on 
+ */
+exports.getSiteContent = async (req, res, next) => {
+    const ctypes = ["heading", "text", "alltext", "image" ];
+    // take accepted query args off of the request object and set defaults
+    let { ctype, prune = '1' } = req.query;
+    ctype = ctype ? ctype.toLowerCase() : undefined;
+    // check ctype is valid
+    if (ctype && !ctypes.includes(ctype)) {
+        const err = new Error("Error: Invalid value submitted for ctype");
+        err.status = 400;
+        next(err);
+        return;
+    }
+    // turn vals to be assessed for truthiness into integers
+    prune = parseInt(prune);
+    // check types
+    if (isNaN(prune) || typeof prune !== 'undefined' && typeof prune !== 'number') {
+        const err = new Error("Error: A query parameter's value was incorrectly formatted");
+        err.status = 400;
+        next(err);
+        return;
+    };
+    // apply prune
+    let selection;
+    if (prune) {
+        selection = 'content index page';
+    }
+    else {
+        selection = '-rules';
+    }
+    // build query
+    let query = Content.find();
+    if (ctype) {
+        if (ctype === 'alltext') {
+            query.or([{ type: 'text' }, { type: 'heading' }]);
+        }
+        else {
+            query = Content.find({ type: ctype });
+        }
+    }
+    query.select(selection);
+    const siteContent = await query.exec();
+    res.json(siteContent);
+};
+
