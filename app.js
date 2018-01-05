@@ -74,15 +74,14 @@ app.use((req, res, next) => {
 app.use('/', routes);
 app.use('/api/v1', api);
 
-// If that above routes didnt work, we 404 them and forward to error handler
+// If routes didnt work, we 404 them and forward to error handler
 app.use(errorHandlers.notFound);
 
 // One of our error handlers will see if these errors are just validation errors
 app.use(errorHandlers.flashValidationErrors);
 
-// Otherwise this was a really bad error we didn't expect! Shoot eh
+// development error handler - prints stack trace
 if (app.get('env') === 'development') {
-  /* Development Error Handler - Prints stack trace */
   app.use(errorHandlers.developmentErrors);
 }
 

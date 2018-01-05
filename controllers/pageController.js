@@ -592,7 +592,9 @@ exports.getPageContent = async (req, res, next) => {
             _id = ObjectId(pid);
         }
         else {
-            res.status(400).send('Error: Invalid page id');
+            const err = new Error("Error: Invalid page id");
+            err.status = 400;
+            next(err);
             return;
         }
     }
@@ -656,7 +658,10 @@ exports.getPageContentBySelectors = async (req, res, next) => {
             _id = ObjectId(pid);
         }
         else {
-            throw new Error('Error: Invalid page id');
+            const err = new Error('Error: Invalid page id');
+            err.status = 400;
+            next(err);
+            return;
         }
     }
     if (rel_path) {
@@ -687,24 +692,35 @@ exports.getPageContentBySelectors = async (req, res, next) => {
 /** partmatch, prune - 0 or 1 */
 exports.getContentSection = async (req, res, next) => {
     // take accepted query args off of the request object and set defaults
-    let { cid, title, selector, prune = 1, partmatch = 0 } = req.query;
+    let { cid, title, selector, prune = '1', partmatch = '0' } = req.query;
     // turn vals to be assessed for truthiness into integers
-    prune = parseInt(req.query.prune);
-    partmatch = parseInt(req.query.partmatch);
+    console.log({prune, partmatch});
+    prune = parseInt(prune);
+    partmatch = parseInt(partmatch);
     // check types
-    [ prune, partmatch ].forEach((val) => {
-        if ( val && typeof val !== 'number') {
-            res.status(400).send(`Error: A query parameter's value was incorrectly formatted`)
-            return;
+    const paramTypeErr = [ prune, partmatch ].reduce((accum, val) => {
+        let err;
+        if (isNaN(val) || typeof val !== 'undefined' && typeof val !== 'number') {
+            err = true;
         }
-    });
+        return accum || err;
+    }, false);
+    if (paramTypeErr) {
+        const err = new Error("Error: A query parameter's value was incorrectly formatted");
+        err.status = 400;
+        next(err);
+        return;
+    };
+    console.log('after');
     let _id;
     if (cid) {
         if (mgIdIsValid(cid)) {
             _id = ObjectId(cid);
         }
         else {
-            res.status(400).send('Error: Invalid content id');
+            const err = new Error("Error: Invalid content id");
+            err.status = 400;
+            next(err);
             return;
         }
     }

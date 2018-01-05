@@ -22,7 +22,7 @@ router.get('/search', catchErrors(pageController.siteSearch) );
 router.get('/selectors/page', catchErrors(pageController.getPageContentBySelectors) );
 // router.get('/selectors/all', catchErrors(pageController.getSiteContentBySelectors) );
 router.get('/page', catchErrors(pageController.getPageContent) );
-// router.get('/content', catchErrors(pageController.getContentSection) );
+router.get('/content', catchErrors(pageController.getContentSection) );
 // router.get('/content/:type', catchErrors(pageController.getContentByType) );
 // router.get('/site', catchErrors(pageController.getSiteContent) );
 
