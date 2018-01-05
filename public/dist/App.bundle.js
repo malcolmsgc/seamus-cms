@@ -222,8 +222,12 @@ if (deleteUserBtns.length) {
 
 // DELETE A PAGE AND ASSOCIATED CONTENT (EXCEPT UPLOADED IMGS)
 
-var deletePageBtn = document.querySelector('.deletePageBtn');
-if (deletePageBtn) deletePageBtn.addEventListener('click', _deletePage2.default);
+var deletePageBtns = document.querySelectorAll('.deletePageBtn');
+if (deletePageBtns.length) {
+    deletePageBtns.forEach(function (btn) {
+        btn.addEventListener('click', _deletePage2.default);
+    });
+}
 
 /***/ }),
 /* 5 */

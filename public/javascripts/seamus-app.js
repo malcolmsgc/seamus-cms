@@ -23,5 +23,9 @@ if (deleteUserBtns.length) {
 
 // DELETE A PAGE AND ASSOCIATED CONTENT (EXCEPT UPLOADED IMGS)
 import deletePage from './modules/deletePage';
-const deletePageBtn = document.querySelector('.deletePageBtn');
-if (deletePageBtn) deletePageBtn.addEventListener('click', deletePage );
+const deletePageBtns = document.querySelectorAll('.deletePageBtn');
+if (deletePageBtns.length) {
+    deletePageBtns.forEach( (btn) => {
+        btn.addEventListener('click', deletePage );
+    } );
+}
