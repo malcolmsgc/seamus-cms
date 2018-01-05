@@ -108,7 +108,7 @@ exports.massageRawContent = (req, res, next) => {
 
 exports.saveContent = async (req, res, next) => {
     const documents = [...req.body];
-    const bulkResponse = await bulkSave(documents, Content, '_id', false);
+    const bulkResponse = await bulkSave(documents, Content, '_id', true);
     if (bulkResponse.writeErrors) {
         console.error('Write error within pageController.saveContent using bulkSave function\n' + bulkResponse.writeErrors);
         const err = new Error('Error saving. Please try again. If error persists please contact an administrator.');
@@ -415,7 +415,7 @@ exports.savePageSchema = async (req, res, next) => {
         bulkResponse = await bulkSave(documents, Content, '_id');
     }
     else {
-        bulkResponse = await bulkSave(documents, Content, '_id', false);
+        bulkResponse = await bulkSave(documents, Content, '_id', true);
     }
     if (bulkResponse.writeErrors) {
         console.error('Write error within pageController.savePageSchema using bulkSave function' + bulkResponse.writeErrors);
@@ -440,9 +440,6 @@ exports.savePageSchema = async (req, res, next) => {
 };
 
 exports.savePageSchemaSingle = async (req, res, next) => {
-    console.log(req.body.firstsave);
-    const firstsave = parseInt(req.body.firstsave);
-    delete req.body.firstsave;
     const contentSchema = { ...req.body };
     // assign content section index
     contentSchema.index = parseInt(contentSchema.index) || 0;
@@ -452,22 +449,11 @@ exports.savePageSchemaSingle = async (req, res, next) => {
         console.log(`new Mongo ID added: ${doc._id}`);
     }
     doc = deleteEmptyFields(doc);
-    console.log(firstsave);
-    console.log(doc);
-    let result;
-    if (firstsave) {
-        result = await Content.findOneAndUpdate({ _id: doc._id }, doc, { upsert: true, new: true, runValidators: true }).exec();
-    }
-    else {
-        const DocId = doc._id;
-        delete doc._id;
-        const newDoc = { $set: {...doc}};
-        result = await Content.findOneAndUpdate({ _id: DocId }, newDoc, { new: true, runValidators: true }).exec();
-        console.log(result);
-    }
+    const result = await Content.findOneAndUpdate({ _id: doc._id }, doc, { upsert: true, new: true, runValidators: true }).exec();
+    console.log(result);
     req.flash('success', `Page content settings saved`);
     res.redirect(`/page/${req.params.pageId}`);
-}
+};
 
 
 /** 
@@ -479,21 +465,22 @@ exports.savePageSchemaSingle = async (req, res, next) => {
  * @return {Promise}  always resolves a BulkWriteResult
  */
 // Adapted from answer given by konsumer on S.O. (https://stackoverflow.com/questions/25285232/bulk-upsert-in-mongodb-using-mongoose)
-function bulkSave(documents, Model, match, doUpsert = true) {
+function bulkSave(documents, Model, match, usesSet = false) {
     match = match || '_id';
     return new Promise((resolve, reject) => {
         const bulk = Model.collection.initializeUnorderedBulkOp();
         documents.forEach((document) => {
             const query = {};
             query[match] = document[match];
-            if (doUpsert) {
-                bulk.find(query).upsert().updateOne(document);
-            }
-            else {
+            if (usesSet) {
                 // Intended for bulk $set so need to remove id from document or will fail. See shape of document passed from massageRawContent.
                 console.log('setting content for ' + document._id);
                 delete document._id;
-                bulk.find(query).updateOne(document);
+                bulk.find(query).upsert().updateOne(document);
+                //NB line above needs upsert so schemas can be edited to add further content sections.
+            }
+            else {
+                bulk.find(query).upsert().updateOne(document);
             }
         });
         bulk.execute((err, bulkres) => {

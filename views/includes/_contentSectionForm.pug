@@ -29,20 +29,21 @@
         option(value="image" selected=(existingSelected==="image")) Image
     fieldset
         legend Rules
+        - const rules = page.content && page.content[i].rules[0]
         p Seamus currently does no policing of any content rules. Rules are displayed as a guideline for users to adhere to.
         label(for="rule") Rules
-        textarea(name='rule')= page.content && page.content[i].rules.rule
+        textarea(name='rule')= rules ? rules.rule : ""
         label(for="max_value") Max value
-        input(type="number" name='max_value' value=page.content && page.content[i].rules.max_value)
+        input(type="number" name='max_value' value= rules ? rules.max_value : "" )
         label(for="min_value") Min value
-        input(type="number" name='min_value' value=page.content && page.content[i].rules.min_value) 
+        input(type="number" name='min_value' value= rules ? rules.min_value : "" ) 
         label(for="max_unit") Unit for max value
-        input(type="text" name='max_unit' value=page.content && page.content[i].rules.max_unit) 
+        input(type="text" name='max_unit' value= rules ? rules.max_unit : "" ) 
         label(for="min_unit") Unit for min value
-        input(type="text" name='min_unit' value=page.content && page.content[i].rules.min_unit) 
+        input(type="text" name='min_unit' value= rules ? rules.min_unit : "" ) 
         label(for="max_apply_to") Max value applies to (e.g. height)
-        input(type="text" name='max_apply_to' value=page.content && page.content[i].rules.max_apply_to) 
+        input(type="text" name='max_apply_to' value= rules ? rules.max_apply_to : "" ) 
         label(for="min_apply_to") Min value applies to (e.g. height)
-        input(type="text" name='min_apply_to' value=page.content && page.content[i].rules.min_apply_to) 
+        input(type="text" name='min_apply_to' value= rules ? rules.min_apply_to : "" ) 
 
         
