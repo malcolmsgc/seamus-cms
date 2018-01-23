@@ -1,6 +1,8 @@
+// WB styles
+
 $black: #303030;
 $width: 800px;
-$purple: #262161;
+$purple: #3d17e7;
 $yellow: #FFC40E;
 $pink: #EE7297;
 $green: #93FF00;
@@ -9,3 +11,16 @@ $grey: lighten(grey, 40%);
 $shad: 0 0 10px rgba(0,0,0,0.1), 0 5px 10px rgba(0,0,0,0.05);
 $grad: linear-gradient(90deg, #48ded4 0%, #a026bf 20%, #e82c75 60%, $yellow 85%, #48ded4 95%);
 $verticalGrad: linear-gradient(0, #48ded4 0%, #a026bf 20%, #e82c75 60%, $yellow 85%, #48ded4 95%);
+
+
+// My styles
+// Palette
+$accent: #FFB800;
+$accent2: #BF4141;
+$accent3: #CCFF00;
+$nav-inactive: #00560F;
+$nav-bg: #CEDED2;
+$canvas: #AAF587;
+$inner-border: #3693C7;
+$active: #3693C7;
+$link: #3693C7;
